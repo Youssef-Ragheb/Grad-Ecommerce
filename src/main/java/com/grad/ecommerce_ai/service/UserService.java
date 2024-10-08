@@ -39,7 +39,8 @@ public class UserService {
         this.branchRepository = branchRepository;
         this.employeeDetailsRepository = employeeDetailsRepository;
     }
-//    public ApiResponse<Boolean> checkMailExists(String mail) {
+
+    //    public ApiResponse<Boolean> checkMailExists(String mail) {
 //        ApiResponse<Boolean> response = new ApiResponse<>();
 //        if(userRepository.existsByEmail(mail)){
 //           response.setStatus(false);
@@ -58,10 +59,11 @@ public class UserService {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         return encoder.encode(password);
     }
-    public ApiResponse<UserDTO> createClient(UserDTO userDTO){
+
+    public ApiResponse<UserDTO> createClient(UserDTO userDTO) {
         ApiResponse<UserDTO> response = new ApiResponse<>();
 
-        if(userRepository.existsByEmail(userDTO.getEmail())){
+        if (userRepository.existsByEmail(userDTO.getEmail())) {
             response.setStatus(false);
             response.setMessage("Email already exists");
             response.setData(null);
@@ -80,16 +82,17 @@ public class UserService {
         response.setStatus(true);
         return response;
     }
-    public ApiResponse<UserDTO> createAdmin(UserDTO userDTO, String password){
+
+    public ApiResponse<UserDTO> createAdmin(UserDTO userDTO, String password) {
         ApiResponse<UserDTO> response = new ApiResponse<>();
-        if(!password.equals("hashPasswordAdmin")){
+        if (!password.equals("hashPasswordAdmin")) {
             response.setData(null);
             response.setMessage("Can't create admin account ");
             response.setStatusCode(500);
             return response;
         }
 
-        if(userRepository.existsByEmail(userDTO.getEmail())){
+        if (userRepository.existsByEmail(userDTO.getEmail())) {
             response.setStatus(false);
             response.setMessage("Email already exists");
             response.setData(null);
@@ -112,11 +115,12 @@ public class UserService {
         response.setStatus(true);
         return response;
     }
-    public ApiResponse<UserDTO> createCompanyAccount(UserDTO userDTO){
+
+    public ApiResponse<UserDTO> createCompanyAccount(UserDTO userDTO) {
         ApiResponse<UserDTO> response = new ApiResponse<>();
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
-        if(userRepository.existsByEmail(userDTO.getEmail())){
+        if (userRepository.existsByEmail(userDTO.getEmail())) {
             response.setStatus(false);
             response.setMessage("Email already exists");
             response.setData(null);
@@ -135,29 +139,30 @@ public class UserService {
         response.setStatus(true);
         return response;
     }
-    public ApiResponse<UserDTO> createCompanyEmployee(UserDTO userDTO,Long branchId,String token){
+
+    public ApiResponse<UserDTO> createCompanyEmployee(UserDTO userDTO, Long branchId, String token) {
         ApiResponse<UserDTO> response = new ApiResponse<>();
         Long userId = jwtService.extractUserId(token);
-        if(Objects.isNull(branchId)){
+        if (Objects.isNull(branchId)) {
             response.setStatus(false);
             response.setStatusCode(400);
             response.setMessage("Invalid branch id");
             return response;
         }
         Optional<Branch> branchOptional = branchRepository.findById(branchId);
-        if(branchOptional.isEmpty()){
+        if (branchOptional.isEmpty()) {
             response.setStatus(false);
             response.setMessage("Branch not found");
             response.setStatusCode(500);
             return response;
         }
-        if(!checkAuth.checkAuthToCompany(userId, branchOptional.get().getCompany().getCompanyId())){
+        if (!checkAuth.checkAuthToCompany(userId, branchOptional.get().getCompany().getCompanyId())) {
             response.setMessage("You are not authorized to access this company");
             response.setStatusCode(401);
             response.setStatus(false);
             return response;
         }
-        if(userRepository.existsByEmail(userDTO.getEmail())){
+        if (userRepository.existsByEmail(userDTO.getEmail())) {
             response.setStatus(false);
             response.setMessage("Email already exists");
             response.setData(null);

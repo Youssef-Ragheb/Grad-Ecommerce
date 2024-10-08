@@ -7,7 +7,10 @@ import com.grad.ecommerce_ai.enitity.Branch;
 import com.grad.ecommerce_ai.enitity.Drugs;
 import com.grad.ecommerce_ai.enitity.InventoryDrug;
 import com.grad.ecommerce_ai.enitity.User;
-import com.grad.ecommerce_ai.repository.*;
+import com.grad.ecommerce_ai.repository.BranchRepository;
+import com.grad.ecommerce_ai.repository.InventoryDrugRepository;
+import com.grad.ecommerce_ai.repository.MainDrugRepository;
+import com.grad.ecommerce_ai.repository.UserRepository;
 import com.grad.ecommerce_ai.utils.CheckAuth;
 import org.springframework.stereotype.Service;
 
@@ -28,9 +31,9 @@ public class DrugService {
 
     private final CheckAuth checkAuth;
     private final MainDrugRepository mainDrugRepository;
-    private final CategoryRepository categoryRepository;
 
-    public DrugService(InventoryDrugRepository inventoryDrugRepository, BranchRepository branchRepository, UserRepository userRepository, JwtService jwtService, ActiveIngredientService activeIngredientService, CheckAuth checkAuth, MainDrugRepository mainDrugRepository, CategoryRepository categoryRepository) {
+
+    public DrugService(InventoryDrugRepository inventoryDrugRepository, BranchRepository branchRepository, UserRepository userRepository, JwtService jwtService, ActiveIngredientService activeIngredientService, CheckAuth checkAuth, MainDrugRepository mainDrugRepository) {
         this.inventoryDrugRepository = inventoryDrugRepository;
         this.branchRepository = branchRepository;
         this.userRepository = userRepository;
@@ -38,7 +41,7 @@ public class DrugService {
         this.activeIngredientService = activeIngredientService;
         this.checkAuth = checkAuth;
         this.mainDrugRepository = mainDrugRepository;
-        this.categoryRepository = categoryRepository;
+
     }
 
     public ApiResponse<InventoryDrugDTO> addDrug(InventoryDrugDTO dragDto, String token) {
@@ -97,9 +100,10 @@ public class DrugService {
         apiResponse.setStatus(true);
         return apiResponse;
     }
-    public ApiResponse<Drugs>addDrugToMain(Drugs drug,String token) {
+
+    public ApiResponse<Drugs> addDrugToMain(Drugs drug, String token) {
         ApiResponse<Drugs> apiResponse = new ApiResponse<>();
-        if(!jwtService.isAdmin(token)){
+        if (!jwtService.isAdmin(token)) {
             apiResponse.setMessage("unauthorized");
             apiResponse.setData(null);
             apiResponse.setStatusCode(401);
@@ -112,59 +116,36 @@ public class DrugService {
         apiResponse.setMessage("drug added");
         return apiResponse;
     }
+
     public ApiResponse<List<DrugResponseDto>> getDrugsWithCategory(String categoryId) {
 
         ApiResponse<List<DrugResponseDto>> response = new ApiResponse<>();
 
         List<DrugResponseDto> drugResponseList = new ArrayList<>();
-        float averagePrice = 0;
+
 
         boolean isAvailable = false;
         List<Drugs> drugsList = mainDrugRepository.findByCategoryId(categoryId);
 
-        int totalDrugs = drugsList.size();
-
-        for(int i = 0; i < totalDrugs; i++) {
-
-            DrugResponseDto drug = new DrugResponseDto();
-            drug.setDrugName(drugsList.get(i).getDrugName());
-            drug.setImageUrl(drugsList.get(i).getLogo());
-            drug.setDescription(drugsList.get(i).getDescription());
-            drug.setDrugId(drugsList.get(i).getId());
-
-            List<InventoryDrug> inventoryDrugList = inventoryDrugRepository.findAllByDrugId(drugsList.get(i).getId());
-            int inventoryDrugListSize = inventoryDrugList.size();
-            float averageTotalPrice = 0;
-
-            for (int j = 0; j < inventoryDrugListSize; j++) {
-                if(inventoryDrugList.get(i).getStock() > 0){
-                    isAvailable = true;
-                }
-                averageTotalPrice +=  inventoryDrugList.get(i).getPrice();
-            }
-            averagePrice = averageTotalPrice/inventoryDrugListSize;
-            drug.setAvailable(isAvailable);
-            drug.setPrice(averagePrice);
-            drugResponseList.add(drug);
-        }
-        response.setData(drugResponseList);
-        response.setMessage("Drugs found");
-        response.setStatusCode(200);
-        response.setStatus(true);
-
-        return response;
+        return getListApiResponse(response, drugResponseList, isAvailable, drugsList);
     }
-    public ApiResponse<List<DrugResponseDto>> getDrugsByDrugName(String drugName){
+
+    public ApiResponse<List<DrugResponseDto>> getDrugsByDrugName(String drugName) {
         ApiResponse<List<DrugResponseDto>> response = new ApiResponse<>();
 
         List<DrugResponseDto> drugResponseList = new ArrayList<>();
-        float averagePrice = 0;
+
 
         boolean isAvailable = false;
         List<Drugs> drugsList = mainDrugRepository.DrugNameContainingIgnoreCase(drugName);
 
+        return getListApiResponse(response, drugResponseList, isAvailable, drugsList);
+    }
+
+    private ApiResponse<List<DrugResponseDto>> getListApiResponse(ApiResponse<List<DrugResponseDto>> response, List<DrugResponseDto> drugResponseList, boolean isAvailable, List<Drugs> drugsList) {
+        float averagePrice;
         int totalDrugs = drugsList.size();
-        for(int i = 0; i < totalDrugs; i++) {
+        for (int i = 0; i < totalDrugs; i++) {
 
             DrugResponseDto drug = new DrugResponseDto();
             drug.setDrugName(drugsList.get(i).getDrugName());
@@ -177,12 +158,12 @@ public class DrugService {
             float averageTotalPrice = 0;
 
             for (int j = 0; j < inventoryDrugListSize; j++) {
-                if(inventoryDrugList.get(i).getStock() > 0){
+                if (inventoryDrugList.get(i).getStock() > 0) {
                     isAvailable = true;
                 }
-                averageTotalPrice +=  inventoryDrugList.get(i).getPrice();
+                averageTotalPrice += inventoryDrugList.get(i).getPrice();
             }
-            averagePrice = averageTotalPrice/inventoryDrugListSize;
+            averagePrice = averageTotalPrice / inventoryDrugListSize;
             drug.setAvailable(isAvailable);
             drug.setPrice(averagePrice);
             drugResponseList.add(drug);

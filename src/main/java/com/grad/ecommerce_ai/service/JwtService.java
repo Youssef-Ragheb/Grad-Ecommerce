@@ -32,18 +32,19 @@ public class JwtService {
         this.userRepository = userRepository;
     }
 
-//    public String generateSecretKey() {
-//        try {
-//            KeyGenerator keyGen = KeyGenerator.getInstance("HmacSHA256");
-//            SecretKey secretKey = keyGen.generateKey();
-//            String key = Base64.getEncoder().encodeToString(secretKey.getEncoded());
-//            System.out.println("key: " + key);
-//            return key;
-//        } catch (NoSuchAlgorithmException e) {
-//            throw new RuntimeException("Error generating secret key", e);
-//        }
-//    }
-
+    /*
+    //    public String generateSecretKey() {
+    //        try {
+    //            KeyGenerator keyGen = KeyGenerator.getInstance("HmacSHA256");
+    //            SecretKey secretKey = keyGen.generateKey();
+    //            String key = Base64.getEncoder().encodeToString(secretKey.getEncoded());
+    //            System.out.println("key: " + key);
+    //            return key;
+    //        } catch (NoSuchAlgorithmException e) {
+    //            throw new RuntimeException("Error generating secret key", e);
+    //        }
+    //    }
+    */
     public String generateToken(String Username, Long id, UserRoles userRoles) {
         HashMap<String, Object> claims = new HashMap<>();
         claims.put("userId", id);
@@ -67,18 +68,20 @@ public class JwtService {
 
         return extractClaim(token, Claims::getSubject);
     }
-    public UserRoles extractRole(String token) {
-        Claims claims = extractAllClaims(token);
-        String roleStr = claims.get("role", String.class); // Extract the role as a String
 
-        try {
-            return UserRoles.valueOf(roleStr); // Convert the String to UserRoles enum
-        } catch (IllegalArgumentException e) {
-            // Handle the case where the role is not valid
-            return null; // Or throw an exception if you prefer
-        }
-    }
-
+    /*
+//    public UserRoles extractRole(String token) {
+//        Claims claims = extractAllClaims(token);
+//        String roleStr = claims.get("role", String.class); // Extract the role as a String
+//
+//        try {
+//            return UserRoles.valueOf(roleStr); // Convert the String to UserRoles enum
+//        } catch (IllegalArgumentException e) {
+//            // Handle the case where the role is not valid
+//            return null; // Or throw an exception if you prefer
+//        }
+//    }
+*/
     private <T> T extractClaim(String token, Function<Claims, T> claimResolver) {
         final Claims claims = extractAllClaims(token);
         return claimResolver.apply(claims);
@@ -104,13 +107,11 @@ public class JwtService {
             return null;
         }
     }
+
     public boolean isAdmin(String token) {
         long id = extractUserId(token);
         Optional<User> user = userRepository.findById(id);
-        if(user.isPresent()){
-            return user.get().getUserRoles().equals(UserRoles.ROLE_ADMIN);
-        }
-        return false;
+        return user.map(value -> value.getUserRoles().equals(UserRoles.ROLE_ADMIN)).orElse(false);
     }
 
     private boolean isTokenExpired(String token) {

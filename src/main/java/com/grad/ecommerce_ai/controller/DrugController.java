@@ -45,5 +45,10 @@ public class DrugController {
         ApiResponse<Drugs> apiResponse = drugService.addDrugToMain(drug,token);
         return ResponseEntity.status(apiResponse.getStatusCode()).body(apiResponse);
     }
+    @PutMapping("/update/{userId}")
+    public ResponseEntity<ApiResponse<InventoryDrugDTO>>updateDrug(@RequestBody InventoryDrugDTO drug,@PathVariable Long userId, @RequestParam String drugId ){
+        ApiResponse<InventoryDrugDTO> apiResponse = drugService.updateDrug(drugId, drug,userId);
+        return ResponseEntity.status(apiResponse.getStatusCode()).body(apiResponse);
+    }
 
 }

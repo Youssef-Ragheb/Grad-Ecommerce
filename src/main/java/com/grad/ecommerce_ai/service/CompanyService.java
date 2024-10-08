@@ -10,7 +10,6 @@ import com.grad.ecommerce_ai.enitity.details.CompanyDetails;
 import com.grad.ecommerce_ai.repository.CompanyDetailsRepository;
 import com.grad.ecommerce_ai.repository.CompanyRepository;
 import com.grad.ecommerce_ai.repository.UserRepository;
-import com.grad.ecommerce_ai.utils.CheckAuth;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -27,15 +26,15 @@ public class CompanyService {
     private final UserRepository userRepository;
     private final CompanyDetailsService companyDetailsService;
     private final CompanyDetailsRepository companyDetailsRepository;
-    private final CheckAuth checkAuth;
 
-    public CompanyService(CompanyRepository companyRepository, JwtService jwtService, UserRepository userRepository, CompanyDetailsService companyDetailsService, CompanyDetailsRepository companyDetailsRepository, CheckAuth checkAuth) {
+
+    public CompanyService(CompanyRepository companyRepository, JwtService jwtService, UserRepository userRepository, CompanyDetailsService companyDetailsService, CompanyDetailsRepository companyDetailsRepository) {
         this.companyRepository = companyRepository;
         this.jwtService = jwtService;
         this.userRepository = userRepository;
         this.companyDetailsService = companyDetailsService;
         this.companyDetailsRepository = companyDetailsRepository;
-        this.checkAuth = checkAuth;
+
     }
 
     public ApiResponse<List<CompanyDTO>> getAllCompanies() {
@@ -52,7 +51,7 @@ public class CompanyService {
     public ApiResponse<CompanyDTO> getCompanyById(Long id) {
         ApiResponse<CompanyDTO> apiResponse = new ApiResponse<>();
         Optional<Company> pharmacy = companyRepository.findById(id);
-        if(pharmacy.isPresent()) {
+        if (pharmacy.isPresent()) {
             apiResponse.setData(companyToDto(pharmacy.get()));
             apiResponse.setStatusCode(200);
             apiResponse.setMessage("Company found");
@@ -70,13 +69,13 @@ public class CompanyService {
         ApiResponse<CompanyDTO> apiResponse = new ApiResponse<>();
         Long userId = jwtService.extractUserId(token);
 
-        if(companyRepository.existsByName(company.getName())) {
+        if (companyRepository.existsByName(company.getName())) {
             apiResponse.setStatusCode(400);
             apiResponse.setMessage("Company name already exists");
             apiResponse.setStatus(false);
             return apiResponse;
         }
-        if(companyRepository.existsByCompanyEmail(company.getCompanyEmail())){
+        if (companyRepository.existsByCompanyEmail(company.getCompanyEmail())) {
             apiResponse.setStatusCode(400);
             apiResponse.setMessage("Company email already exists");
             apiResponse.setStatus(false);
@@ -85,13 +84,13 @@ public class CompanyService {
         CompanyDetails companyDetails = new CompanyDetails();
 
         Optional<User> user = userRepository.findById(userId);
-        if(user.isEmpty()){
+        if (user.isEmpty()) {
             apiResponse.setStatusCode(400);
             apiResponse.setMessage("User not found");
             apiResponse.setStatus(false);
             return apiResponse;
         }
-        if (companyDetailsRepository.existsByUser(user.get())){
+        if (companyDetailsRepository.existsByUser(user.get())) {
             apiResponse.setStatusCode(400);
             apiResponse.setMessage("User already have company");
             apiResponse.setStatus(false);
@@ -103,7 +102,7 @@ public class CompanyService {
         Company savedCompany = companyRepository.save(company);
         companyDetails.setCompany(savedCompany);
         ApiResponse<CompanyDetails> companyDetailsApiResponse = companyDetailsService.createCompanyDetails(companyDetails);
-        if(companyDetailsApiResponse.getData() == null){
+        if (companyDetailsApiResponse.getData() == null) {
             apiResponse.setStatusCode(companyDetailsApiResponse.getStatusCode());
             apiResponse.setMessage(companyDetailsApiResponse.getMessage());
             apiResponse.setStatus(false);
@@ -137,9 +136,7 @@ public class CompanyService {
 
         Company existingCompany = existingCompanyOpt.get();
 
-        Optional<Company> conflictingCompanyOpt = companyRepository.findByNameOrEmailOrPhone(
-                updatedCompany.getName(), updatedCompany.getCompanyEmail(), updatedCompany.getPhone()
-        );
+        Optional<Company> conflictingCompanyOpt = companyRepository.findByNameOrEmailOrPhone(updatedCompany.getName(), updatedCompany.getCompanyEmail(), updatedCompany.getPhone());
 
         if (conflictingCompanyOpt.isPresent()) {
             Company conflictingCompany = conflictingCompanyOpt.get();
@@ -167,11 +164,7 @@ public class CompanyService {
         existingCompany.setName(updatedCompany.getName());
         existingCompany.setCompanyEmail(updatedCompany.getCompanyEmail());
         existingCompany.setPhone(updatedCompany.getPhone());
-        existingCompany.setLogoUrl(
-                updatedCompany.getLogoUrl() != null && !updatedCompany.getLogoUrl().isEmpty() ?
-                        updatedCompany.getLogoUrl() :
-                        existingCompany.getLogoUrl()
-        );
+        existingCompany.setLogoUrl(updatedCompany.getLogoUrl() != null && !updatedCompany.getLogoUrl().isEmpty() ? updatedCompany.getLogoUrl() : existingCompany.getLogoUrl());
 
         Company savedCompany = companyRepository.save(existingCompany);
 
@@ -192,7 +185,7 @@ public class CompanyService {
             apiResponse.setStatus(false);
             return apiResponse;
         }
-        if(companyDetails.get().getCompany().getCompanyId().equals(companyId)){
+        if (companyDetails.get().getCompany().getCompanyId().equals(companyId)) {
             apiResponse.setStatusCode(401);
             apiResponse.setMessage("Unauthorized");
             apiResponse.setStatus(false);
@@ -213,13 +206,12 @@ public class CompanyService {
     public ApiResponse<Boolean> deleteCompany(Long id, String token) {
         ApiResponse<Boolean> apiResponse = new ApiResponse<>();
 
-        Company company = companyRepository.findById(id)
-                .orElseThrow(() -> {
-                    apiResponse.setStatusCode(404);
-                    apiResponse.setMessage("Company Not Found");
-                    apiResponse.setStatus(false);
-                    return new EntityNotFoundException("Company Not Found");
-                });
+        Company company = companyRepository.findById(id).orElseThrow(() -> {
+            apiResponse.setStatusCode(404);
+            apiResponse.setMessage("Company Not Found");
+            apiResponse.setStatus(false);
+            return new EntityNotFoundException("Company Not Found");
+        });
 
         if (!company.getBranchList().isEmpty()) {
             apiResponse.setStatusCode(400);
@@ -229,21 +221,19 @@ public class CompanyService {
         }
 
         Long userId = jwtService.extractUserId(token);
-        User registeredUser = userRepository.findById(userId)
-                .orElseThrow(() -> {
-                    apiResponse.setStatusCode(404);
-                    apiResponse.setMessage("User not found");
-                    apiResponse.setStatus(false);
-                    return new EntityNotFoundException("User Not Found");
-                });
+        User registeredUser = userRepository.findById(userId).orElseThrow(() -> {
+            apiResponse.setStatusCode(404);
+            apiResponse.setMessage("User not found");
+            apiResponse.setStatus(false);
+            return new EntityNotFoundException("User Not Found");
+        });
 
-        CompanyDetails companyDetails = companyDetailsRepository.findByUser(registeredUser)
-                .orElseThrow(() -> {
-                    apiResponse.setStatusCode(404);
-                    apiResponse.setMessage("User unauthorized or company details not found");
-                    apiResponse.setStatus(false);
-                    return new EntityNotFoundException("Company Details Not Found");
-                });
+        CompanyDetails companyDetails = companyDetailsRepository.findByUser(registeredUser).orElseThrow(() -> {
+            apiResponse.setStatusCode(404);
+            apiResponse.setMessage("User unauthorized or company details not found");
+            apiResponse.setStatus(false);
+            return new EntityNotFoundException("Company Details Not Found");
+        });
 
         if (!companyDetails.getCompany().getCompanyId().equals(id)) {
             apiResponse.setStatusCode(403);
@@ -268,11 +258,12 @@ public class CompanyService {
         apiResponse.setStatus(true);
         return apiResponse;
     }
+
     public ApiResponse<List<BranchDTO>> getCompanyBranches(Long companyId) {
         ApiResponse<List<BranchDTO>> apiResponse = new ApiResponse<>();
         Optional<Company> companyOptional = companyRepository.findById(companyId);
-        if(companyOptional.isPresent()) {
-            List<Branch> branchList  = companyOptional.get().getBranchList();
+        if (companyOptional.isPresent()) {
+            List<Branch> branchList = companyOptional.get().getBranchList();
             apiResponse.setData(branchListToDtoList(branchList));
             apiResponse.setStatusCode(200);
             apiResponse.setMessage("Branches found");

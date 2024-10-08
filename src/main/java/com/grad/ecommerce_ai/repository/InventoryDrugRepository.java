@@ -10,7 +10,10 @@ import java.util.List;
 public interface InventoryDrugRepository extends MongoRepository<InventoryDrug, String> {
 List<InventoryDrug> findAllByBranchId(Long id);
 void deleteAllByBranchId(Long id);
-List<InventoryDrug> findByCategoryId(String categoryId);
-List<InventoryDrug> findAllByIdIn(List<String> ids);
+/*
+//List<InventoryDrug> findByCategoryId(String categoryId);
+//List<InventoryDrug> findAllByIdIn(List<String> ids);
+ */
+
 List<InventoryDrug> findAllByDrugId(String id);
 }

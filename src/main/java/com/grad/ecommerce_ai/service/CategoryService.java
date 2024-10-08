@@ -32,7 +32,7 @@ public class CategoryService {
         }
 
         // Check if category name already exists
-        if (categoryRepository.existsByName(category.getName())) {
+        if (categoryRepository.existsByCategoryName(category.getCategoryName())) {
             apiResponse.setStatusCode(400);
             apiResponse.setMessage("Category name already exists");
             apiResponse.setStatus(false);
@@ -99,7 +99,7 @@ public class CategoryService {
 
         // Update the category fields
         Category existingCategory = existingCategoryOpt.get();
-        existingCategory.setName(updatedCategory.getName());
+        existingCategory.setCategoryName(updatedCategory.getCategoryName());
         existingCategory.setLogo(updatedCategory.getLogo());
 
         // Save the updated category

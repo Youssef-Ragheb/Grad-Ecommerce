@@ -10,9 +10,9 @@ public class Drugs {
     @Indexed(unique = true)
     private String id;
     private String activeIngredientId;
-    //TODO asm al company of drug
+    private String categoryId;
+    private String brandName;
     private String drugName;
-    private String drugArabicName;
     private String description;
     private String logo;
 }

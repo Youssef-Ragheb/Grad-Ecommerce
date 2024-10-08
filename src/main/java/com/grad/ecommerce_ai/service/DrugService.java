@@ -1,16 +1,17 @@
 package com.grad.ecommerce_ai.service;
 
 import com.grad.ecommerce_ai.dto.ApiResponse;
+import com.grad.ecommerce_ai.dto.DrugResponseDto;
 import com.grad.ecommerce_ai.dto.InventoryDrugDTO;
 import com.grad.ecommerce_ai.enitity.Branch;
+import com.grad.ecommerce_ai.enitity.Drugs;
 import com.grad.ecommerce_ai.enitity.InventoryDrug;
 import com.grad.ecommerce_ai.enitity.User;
-import com.grad.ecommerce_ai.repository.BranchRepository;
-import com.grad.ecommerce_ai.repository.InventoryDrugRepository;
-import com.grad.ecommerce_ai.repository.UserRepository;
+import com.grad.ecommerce_ai.repository.*;
 import com.grad.ecommerce_ai.utils.CheckAuth;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,20 +27,24 @@ public class DrugService {
     private final ActiveIngredientService activeIngredientService;
 
     private final CheckAuth checkAuth;
+    private final MainDrugRepository mainDrugRepository;
+    private final CategoryRepository categoryRepository;
 
-    public DrugService(InventoryDrugRepository inventoryDrugRepository, BranchRepository branchRepository, UserRepository userRepository, JwtService jwtService, ActiveIngredientService activeIngredientService, CheckAuth checkAuth) {
+    public DrugService(InventoryDrugRepository inventoryDrugRepository, BranchRepository branchRepository, UserRepository userRepository, JwtService jwtService, ActiveIngredientService activeIngredientService, CheckAuth checkAuth, MainDrugRepository mainDrugRepository, CategoryRepository categoryRepository) {
         this.inventoryDrugRepository = inventoryDrugRepository;
         this.branchRepository = branchRepository;
         this.userRepository = userRepository;
         this.jwtService = jwtService;
         this.activeIngredientService = activeIngredientService;
         this.checkAuth = checkAuth;
+        this.mainDrugRepository = mainDrugRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     public ApiResponse<InventoryDrugDTO> addDrug(InventoryDrugDTO dragDto, String token) {
         // TODO get the id from token when we add security
         ApiResponse<InventoryDrugDTO> response = new ApiResponse<>();
-        Long userId =jwtService.extractUserId(token);
+        Long userId = jwtService.extractUserId(token);
         Optional<Branch> branch = branchRepository.findById(dragDto.getBranchId());
         if (branch.isEmpty()) {
             response.setMessage("Branch not found");
@@ -91,6 +96,103 @@ public class DrugService {
         apiResponse.setStatusCode(200);
         apiResponse.setStatus(true);
         return apiResponse;
+    }
+    public ApiResponse<Drugs>addDrugToMain(Drugs drug,String token) {
+        ApiResponse<Drugs> apiResponse = new ApiResponse<>();
+        if(!jwtService.isAdmin(token)){
+            apiResponse.setMessage("unauthorized");
+            apiResponse.setData(null);
+            apiResponse.setStatusCode(401);
+            apiResponse.setStatus(false);
+            return apiResponse;
+        }
+        apiResponse.setData(mainDrugRepository.save(drug));
+        apiResponse.setStatus(true);
+        apiResponse.setStatusCode(200);
+        apiResponse.setMessage("drug added");
+        return apiResponse;
+    }
+    public ApiResponse<List<DrugResponseDto>> getDrugsWithCategory(String categoryId) {
+
+        ApiResponse<List<DrugResponseDto>> response = new ApiResponse<>();
+
+        List<DrugResponseDto> drugResponseList = new ArrayList<>();
+        float averagePrice = 0;
+
+        boolean isAvailable = false;
+        List<Drugs> drugsList = mainDrugRepository.findByCategoryId(categoryId);
+
+        int totalDrugs = drugsList.size();
+
+        for(int i = 0; i < totalDrugs; i++) {
+
+            DrugResponseDto drug = new DrugResponseDto();
+            drug.setDrugName(drugsList.get(i).getDrugName());
+            drug.setImageUrl(drugsList.get(i).getLogo());
+            drug.setDescription(drugsList.get(i).getDescription());
+            drug.setDrugId(drugsList.get(i).getId());
+
+            List<InventoryDrug> inventoryDrugList = inventoryDrugRepository.findAllByDrugId(drugsList.get(i).getId());
+            int inventoryDrugListSize = inventoryDrugList.size();
+            float averageTotalPrice = 0;
+
+            for (int j = 0; j < inventoryDrugListSize; j++) {
+                if(inventoryDrugList.get(i).getStock() > 0){
+                    isAvailable = true;
+                }
+                averageTotalPrice +=  inventoryDrugList.get(i).getPrice();
+            }
+            averagePrice = averageTotalPrice/inventoryDrugListSize;
+            drug.setAvailable(isAvailable);
+            drug.setPrice(averagePrice);
+            drugResponseList.add(drug);
+        }
+        response.setData(drugResponseList);
+        response.setMessage("Drugs found");
+        response.setStatusCode(200);
+        response.setStatus(true);
+
+        return response;
+    }
+    public ApiResponse<List<DrugResponseDto>> getDrugsByDrugName(String drugName){
+        ApiResponse<List<DrugResponseDto>> response = new ApiResponse<>();
+
+        List<DrugResponseDto> drugResponseList = new ArrayList<>();
+        float averagePrice = 0;
+
+        boolean isAvailable = false;
+        List<Drugs> drugsList = mainDrugRepository.DrugNameContainingIgnoreCase(drugName);
+
+        int totalDrugs = drugsList.size();
+        for(int i = 0; i < totalDrugs; i++) {
+
+            DrugResponseDto drug = new DrugResponseDto();
+            drug.setDrugName(drugsList.get(i).getDrugName());
+            drug.setImageUrl(drugsList.get(i).getLogo());
+            drug.setDescription(drugsList.get(i).getDescription());
+            drug.setDrugId(drugsList.get(i).getId());
+
+            List<InventoryDrug> inventoryDrugList = inventoryDrugRepository.findAllByDrugId(drugsList.get(i).getId());
+            int inventoryDrugListSize = inventoryDrugList.size();
+            float averageTotalPrice = 0;
+
+            for (int j = 0; j < inventoryDrugListSize; j++) {
+                if(inventoryDrugList.get(i).getStock() > 0){
+                    isAvailable = true;
+                }
+                averageTotalPrice +=  inventoryDrugList.get(i).getPrice();
+            }
+            averagePrice = averageTotalPrice/inventoryDrugListSize;
+            drug.setAvailable(isAvailable);
+            drug.setPrice(averagePrice);
+            drugResponseList.add(drug);
+        }
+        response.setData(drugResponseList);
+        response.setMessage("Drugs found");
+        response.setStatusCode(200);
+        response.setStatus(true);
+
+        return response;
     }
 
     public ApiResponse<InventoryDrugDTO> updateDrug(String drugId, InventoryDrugDTO inventoryDrugDto, Long userId) {

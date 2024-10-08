@@ -4,6 +4,7 @@ import com.grad.ecommerce_ai.dto.ApiResponse;
 import com.grad.ecommerce_ai.dto.BranchDTO;
 import com.grad.ecommerce_ai.enitity.Branch;
 import com.grad.ecommerce_ai.enitity.Company;
+import com.grad.ecommerce_ai.enitity.InventoryDrug;
 import com.grad.ecommerce_ai.repository.BranchRepository;
 import com.grad.ecommerce_ai.repository.CompanyRepository;
 import com.grad.ecommerce_ai.repository.InventoryDrugRepository;
@@ -249,5 +250,23 @@ public class BranchService {
         apiResponse.setStatusCode(200);
         apiResponse.setStatus(true);
         return apiResponse;
+    }
+    public ApiResponse<List<InventoryDrug>> getBranchDrugs(Long branchId) {
+        ApiResponse<List<InventoryDrug>> apiResponse = new ApiResponse<>();
+        if(!branchRepository.existsById(branchId)) {
+            apiResponse.setStatusCode(200);
+            apiResponse.setData(null);
+            apiResponse.setMessage("Branch not found");
+            apiResponse.setStatus(false);
+            return apiResponse;
+        }
+        apiResponse.setData(inventoryDrugRepository.findAllByBranchId(branchId));
+        apiResponse.setStatusCode(200);
+        apiResponse.setMessage("drugs found");
+        apiResponse.setStatus(true);
+
+
+        return apiResponse;
+
     }
 }

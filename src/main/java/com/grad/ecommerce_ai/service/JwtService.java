@@ -1,7 +1,9 @@
 package com.grad.ecommerce_ai.service;
 
 
+import com.grad.ecommerce_ai.enitity.User;
 import com.grad.ecommerce_ai.enitity.UserRoles;
+import com.grad.ecommerce_ai.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -14,6 +16,7 @@ import java.security.Key;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.function.Function;
 
 @Service
@@ -21,10 +24,12 @@ public class JwtService {
 
     private final long jwtExpirationInMs; // 100h
     private final String secretKey;
+    private final UserRepository userRepository;
 
-    public JwtService() {
+    public JwtService(UserRepository userRepository) {
         secretKey = "WQzX+qet+e0vCZBrZaXgCgCIfEPdI3Inb4368Aht/Ls=";
         jwtExpirationInMs = 1000 * 60 * 60 * 100;
+        this.userRepository = userRepository;
     }
 
 //    public String generateSecretKey() {
@@ -98,6 +103,14 @@ public class JwtService {
         } else {
             return null;
         }
+    }
+    public boolean isAdmin(String token) {
+        long id = extractUserId(token);
+        Optional<User> user = userRepository.findById(id);
+        if(user.isPresent()){
+            return user.get().getUserRoles().equals(UserRoles.ROLE_ADMIN);
+        }
+        return false;
     }
 
     private boolean isTokenExpired(String token) {

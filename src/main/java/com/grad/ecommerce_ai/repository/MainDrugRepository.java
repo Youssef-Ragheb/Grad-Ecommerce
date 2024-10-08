@@ -9,5 +9,6 @@ import java.util.List;
 @Repository
 public interface MainDrugRepository extends MongoRepository<Drugs,String> {
     List<Drugs> findByActiveIngredientId(String id);
-
+    List<Drugs> findByCategoryId(String id);
+    List<Drugs> DrugNameContainingIgnoreCase(String drugName);
 }

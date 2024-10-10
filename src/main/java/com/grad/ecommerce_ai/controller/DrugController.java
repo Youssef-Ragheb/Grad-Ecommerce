@@ -1,6 +1,7 @@
 package com.grad.ecommerce_ai.controller;
 
 import com.grad.ecommerce_ai.dto.ApiResponse;
+import com.grad.ecommerce_ai.dto.BranchDTO;
 import com.grad.ecommerce_ai.dto.DrugResponseDto;
 import com.grad.ecommerce_ai.dto.InventoryDrugDTO;
 import com.grad.ecommerce_ai.enitity.Drugs;
@@ -35,9 +36,9 @@ public class DrugController {
         ApiResponse<List<DrugResponseDto>> apiResponse = drugService.getDrugsByDrugName(name);
         return ResponseEntity.status(apiResponse.getStatusCode()).body(apiResponse);
     }
-    @GetMapping("/category/{categoryName}")
-    public ResponseEntity<ApiResponse<List<DrugResponseDto>>>getAllDrugsByCategory(@PathVariable String categoryName){
-        ApiResponse<List<DrugResponseDto>> apiResponse = drugService.getDrugsWithCategory(categoryName);
+    @GetMapping("/category/{categoryId}")
+    public ResponseEntity<ApiResponse<List<DrugResponseDto>>>getAllDrugsByCategory(@PathVariable String categoryId){
+        ApiResponse<List<DrugResponseDto>> apiResponse = drugService.getDrugsWithCategory(categoryId);
         return ResponseEntity.status(apiResponse.getStatusCode()).body(apiResponse);
     }
     @PostMapping("/add/main")
@@ -48,6 +49,11 @@ public class DrugController {
     @PutMapping("/update/{userId}")
     public ResponseEntity<ApiResponse<InventoryDrugDTO>>updateDrug(@RequestBody InventoryDrugDTO drug,@PathVariable Long userId, @RequestParam String drugId ){
         ApiResponse<InventoryDrugDTO> apiResponse = drugService.updateDrug(drugId, drug,userId);
+        return ResponseEntity.status(apiResponse.getStatusCode()).body(apiResponse);
+    }
+    @GetMapping("/{drugId}/branches")
+    public ResponseEntity<ApiResponse<List<BranchDTO>>>updateDrug(@PathVariable String drugId){
+        ApiResponse<List<BranchDTO>> apiResponse = drugService.getDrugFromInventory(drugId);
         return ResponseEntity.status(apiResponse.getStatusCode()).body(apiResponse);
     }
 

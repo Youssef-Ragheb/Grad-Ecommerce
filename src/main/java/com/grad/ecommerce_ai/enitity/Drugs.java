@@ -9,7 +9,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Drugs {
     @Indexed(unique = true)
     private String id;
+    @Indexed
     private String activeIngredientId;
+    @Indexed
     private String categoryId;
     private String brandName;
     private String drugName;

@@ -1,8 +1,6 @@
 package com.grad.ecommerce_ai.controller.request;
 
 import com.grad.ecommerce_ai.dto.ApiResponse;
-import com.grad.ecommerce_ai.dto.UserDTO;
-import com.grad.ecommerce_ai.enitity.User;
 import com.grad.ecommerce_ai.enitity.UserLogin;
 import com.grad.ecommerce_ai.enitity.details.UserPrincipal;
 import com.grad.ecommerce_ai.service.JwtService;
@@ -11,15 +9,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import static com.grad.ecommerce_ai.enitity.UserRoles.ROLE_ADMIN;
 import static com.grad.ecommerce_ai.enitity.UserRoles.ROLE_COMPANY;
 
-
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/login")
 public class LoginController {
@@ -44,10 +38,10 @@ public class LoginController {
             if (authentication.isAuthenticated()) {
                 UserPrincipal userDetails = (UserPrincipal) authentication.getPrincipal();
                 Long userId = userDetails.getUserId();
-                String token = jwtService.generateToken(user.getEmail(), userId,userDetails.getUserRole());
+                String token = jwtService.generateToken(user.getEmail(), userId, userDetails.getUserRole());
                 response.setStatusCode(200);
                 response.setMessage("Successfully logged in");
-                if((!userDetails.getCompanyRegistration())&&userDetails.getUserRole().equals(ROLE_COMPANY)){
+                if ((!userDetails.getCompanyRegistration()) && userDetails.getUserRole().equals(ROLE_COMPANY)) {
                     response.setMessage("Need to complete company registration");
                 }
                 response.setStatus(true);

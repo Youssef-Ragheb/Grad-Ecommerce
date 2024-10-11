@@ -22,24 +22,8 @@ public class CartService {
         this.jwtService = jwtService;
         this.itemRepository = itemRepository;
     }
-    /*
-    @Id
-    private String id;
-    private List<Item> items;
-    @Indexed
-    private String userId;
-     */
-    /*
-        @Id
-    private String id;
-    @Indexed
-    private String orderId; // Optional, can link to Order (in MongoDB or MySQL)
-    private String drugId;  // Relates to drug in MongoDB
-    private String branchId;// Relates to branch in MySQL
-    private float price;
-    private int quantity;
-     */
-    public ApiResponse<Cart> addToCart (Item item,String token){
+
+    public void addToCart (Item item, String token){
         ApiResponse<Cart> response = new ApiResponse<>();
         Long userId = jwtService.extractUserId(token);
         Optional<Cart> cartOptional = cartRepository.findByUserId(userId);
@@ -53,7 +37,7 @@ public class CartService {
             response.setStatusCode(200);
             response.setMessage("Cart Created and added item");
             response.setStatus(true);
-            return response;
+            return;
         }
         Cart cart = cartOptional.get();
         List<Item> items = cart.getItems();
@@ -63,7 +47,6 @@ public class CartService {
         response.setStatusCode(200);
         response.setMessage("item added");
         response.setStatus(true);
-        return response;
 
     }
     public ApiResponse<Cart> removeFromCart(Item item,String token){

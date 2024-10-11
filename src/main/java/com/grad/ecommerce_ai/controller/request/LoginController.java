@@ -1,6 +1,8 @@
 package com.grad.ecommerce_ai.controller.request;
 
 import com.grad.ecommerce_ai.dto.ApiResponse;
+import com.grad.ecommerce_ai.dto.UserDTO;
+import com.grad.ecommerce_ai.enitity.User;
 import com.grad.ecommerce_ai.enitity.UserLogin;
 import com.grad.ecommerce_ai.enitity.details.UserPrincipal;
 import com.grad.ecommerce_ai.service.JwtService;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import static com.grad.ecommerce_ai.enitity.UserRoles.ROLE_ADMIN;
 import static com.grad.ecommerce_ai.enitity.UserRoles.ROLE_COMPANY;
 
 
@@ -24,10 +27,12 @@ public class LoginController {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
 
-    public LoginController( AuthenticationManager authenticationManager, JwtService jwtService) {
+
+    public LoginController(AuthenticationManager authenticationManager, JwtService jwtService) {
 
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
+
     }
 
     @PostMapping()

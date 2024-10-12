@@ -6,7 +6,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 public class FrontConfig {
     @Configuration
-    public static class WebConfig implements WebMvcConfigurer {
+    public class WebConfig implements WebMvcConfigurer {
 
         @Override
         public void addCorsMappings(CorsRegistry registry) {

@@ -12,6 +12,4 @@ public class Order {
     private String paymentMethod;
     private String status;
     private Long userId;            // User ID to reference the MySQL User
-
-
 }

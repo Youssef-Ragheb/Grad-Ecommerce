@@ -24,12 +24,12 @@ public class CategoryService {
         ApiResponse<Category> apiResponse = new ApiResponse<>();
 
         // Check if the user is admin
-        if (!jwtTokenUtil.isAdmin(token)) {
-            apiResponse.setStatusCode(403);
-            apiResponse.setMessage("Access denied: only admins can create categories");
-            apiResponse.setStatus(false);
-            return apiResponse;
-        }
+//        if (!jwtTokenUtil.isAdmin(token)) {
+//            apiResponse.setStatusCode(403);
+//            apiResponse.setMessage("Access denied: only admins can create categories");
+//            apiResponse.setStatus(false);
+//            return apiResponse;
+//        }
 
         // Check if category name already exists
         if (categoryRepository.existsByCategoryName(category.getCategoryName())) {

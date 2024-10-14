@@ -5,7 +5,7 @@ import com.grad.ecommerce_ai.enitity.LogHistory;
 import com.grad.ecommerce_ai.service.JwtService;
 import com.grad.ecommerce_ai.service.LogHistoryService;
 import org.springframework.web.bind.annotation.*;
-
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/log-history")
 public class LogHistoryController {

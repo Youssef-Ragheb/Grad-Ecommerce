@@ -5,7 +5,7 @@ import com.grad.ecommerce_ai.dto.UserDTO;
 import com.grad.ecommerce_ai.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-//@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/signup")
 public class SignUpController {

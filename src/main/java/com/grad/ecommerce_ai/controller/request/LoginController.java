@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import static com.grad.ecommerce_ai.enitity.UserRoles.ROLE_COMPANY;
 
-@CrossOrigin(origins = "*")
+//@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/login")
 public class LoginController {

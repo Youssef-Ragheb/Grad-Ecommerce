@@ -6,7 +6,7 @@ import com.grad.ecommerce_ai.service.WishlistService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-@CrossOrigin(origins = "http://localhost:3000")
+//@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("api/wishlist")
 public class WishlistController {

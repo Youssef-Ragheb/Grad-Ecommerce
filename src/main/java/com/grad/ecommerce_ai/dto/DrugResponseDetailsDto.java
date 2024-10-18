@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 public class DrugResponseDetailsDto {
     private String drugId;
     private String drugName;
+    private String categoryName;
+    private String activeIngredients;
     private String description;
     private boolean isAvailable;
     private String imageUrl;

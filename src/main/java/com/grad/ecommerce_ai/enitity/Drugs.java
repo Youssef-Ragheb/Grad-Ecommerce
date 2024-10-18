@@ -13,7 +13,6 @@ public class Drugs {
     private String activeIngredientId;
     @Indexed
     private String categoryId;
-    private String brandName;
     private String drugName;
     private String description;
     private String logo;

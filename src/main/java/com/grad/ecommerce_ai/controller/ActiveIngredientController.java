@@ -32,8 +32,8 @@ public class ActiveIngredientController {
     }
 
     @GetMapping("/name/{name}")
-    public ResponseEntity<ApiResponse<ActiveIngredient>> getActiveIngredientByName(@PathVariable String name) {
-        ApiResponse<ActiveIngredient> response = activeIngredientService.getActiveIngredientByName(name);
+    public ResponseEntity<ApiResponse<List<ActiveIngredient>>> getActiveIngredientByName(@PathVariable String name) {
+        ApiResponse<List<ActiveIngredient>> response = activeIngredientService.getActiveIngredientByName(name);
         return new ResponseEntity<>(response, HttpStatusCode.valueOf(response.getStatusCode()));
     }
 

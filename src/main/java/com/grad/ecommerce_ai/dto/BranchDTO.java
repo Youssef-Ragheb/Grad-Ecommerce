@@ -21,9 +21,9 @@ public class BranchDTO {
     private String phone;
     @NotBlank
     private String email;
-    @NotBlank
+
     private double lat;
-    @NotBlank
+
     private double lng;
     private CompanyDTO companyDto;
 

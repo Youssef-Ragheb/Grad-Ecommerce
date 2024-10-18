@@ -46,21 +46,25 @@ public class ActiveIngredientService {
         return apiResponse;
     }
 
-    public ApiResponse<ActiveIngredient> getActiveIngredientByName(String name) {
-        ApiResponse<ActiveIngredient> apiResponse = new ApiResponse<>();
-        Optional<ActiveIngredient> activeIngredient = activeIngredientRepository.findByActiveIngredient(name);
-        if (activeIngredient.isPresent()) {
-            apiResponse.setData(activeIngredient.get());
+    public ApiResponse<List<ActiveIngredient>> getActiveIngredientByName(String name) {
+        ApiResponse<List<ActiveIngredient>> apiResponse = new ApiResponse<>();
+        try{
+            List<ActiveIngredient> activeIngredientList = activeIngredientRepository.findByActiveIngredientContainingIgnoreCase(name);
+            System.out.println(activeIngredientList);
+            apiResponse.setData(activeIngredientList);
             apiResponse.setMessage("Active Ingredient found");
             apiResponse.setStatus(true);
             apiResponse.setStatusCode(200);
             return apiResponse;
+        }catch (Exception e){
+            e.printStackTrace();  // This will log the exception in the console
+            apiResponse.setData(null);
+            apiResponse.setMessage("Active Ingredient not found: " + e.getMessage());
+            apiResponse.setStatus(false);
+            apiResponse.setStatusCode(400);
+            return apiResponse;
         }
-        apiResponse.setData(null);
-        apiResponse.setMessage("Active Ingredient not found");
-        apiResponse.setStatus(false);
-        apiResponse.setStatusCode(404);
-        return apiResponse;
+
     }
 
     public ApiResponse<Boolean> deleteActiveIngredientById(String id) {
@@ -94,18 +98,15 @@ public class ActiveIngredientService {
         ApiResponse<ActiveIngredient> apiResponse = new ApiResponse<>();
         Optional<ActiveIngredient> activeIngredientOptional = activeIngredientRepository.findById(activeIngredient.getId());
         if (activeIngredientOptional.isPresent()) {
-            if (activeIngredientOptional.get().getDescription() != null && activeIngredientOptional.get().getDescription().isEmpty()) {
-                activeIngredientRepository.save(activeIngredientOptional.get());
-                apiResponse.setData(activeIngredientOptional.get());
-                apiResponse.setMessage("Active Ingredient updated");
-                apiResponse.setStatus(true);
-                apiResponse.setStatusCode(200);
-                return apiResponse;
-            }
+        if(activeIngredient.getDescription()== null || activeIngredient.getDescription().isEmpty() ){
+            activeIngredient.setDescription(activeIngredientOptional.get().getDescription());
+        }
+
+            activeIngredientRepository.save(activeIngredient);
             apiResponse.setData(activeIngredientOptional.get());
-            apiResponse.setMessage("Active Ingredient description is empty");
-            apiResponse.setStatus(false);
-            apiResponse.setStatusCode(400);
+            apiResponse.setMessage("Active Ingredient updated");
+            apiResponse.setStatus(true);
+            apiResponse.setStatusCode(200);
             return apiResponse;
         }
         apiResponse.setData(null);

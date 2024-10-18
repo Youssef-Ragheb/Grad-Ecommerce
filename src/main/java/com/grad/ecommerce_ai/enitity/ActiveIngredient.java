@@ -5,7 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-
+import org.springframework.data.mongodb.core.mapping.Field;
 
 
 @NoArgsConstructor
@@ -15,7 +15,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class ActiveIngredient {
     @Id
     private String id;
-    private String ActiveIngredient;
-    private String IngredientArabicName;
+    @Field("activeIngredient")
+    private String activeIngredient;
+    @Field("ingredientArabicName")
+    private String ingredientArabicName;
     private String description;
 }

@@ -45,7 +45,7 @@ public class DrugService {
         this.mainDrugRepository = mainDrugRepository;
 
     }
-
+/*
     public ApiResponse<InventoryDrugDTO> addDrug(InventoryDrugDTO dragDto, String token) {
         // TODO get the id from token when we add security
         ApiResponse<InventoryDrugDTO> response = new ApiResponse<>();
@@ -102,7 +102,7 @@ public class DrugService {
         apiResponse.setStatus(true);
         return apiResponse;
     }
-
+  */
     public ApiResponse<Drugs> addDrugToMain(Drugs drug, String token) {
         ApiResponse<Drugs> apiResponse = new ApiResponse<>();
         if (!jwtService.isAdmin(token)) {
@@ -120,7 +120,7 @@ public class DrugService {
     }
 
     // Read a single drug by ID
-    public ApiResponse<Drugs> getDrugByIdFromMain(String id) {
+    public ApiResponse<Drugs> getDrugById(String id) {
         ApiResponse<Drugs> apiResponse = new ApiResponse<>();
         Optional<Drugs> drugOpt = mainDrugRepository.findById(id);
         if (drugOpt.isEmpty()) {
@@ -137,7 +137,7 @@ public class DrugService {
     }
 
     // Get a list of all drugs
-    public ApiResponse<List<Drugs>> getAllDrugsFromMain() {
+    public ApiResponse<List<Drugs>> getAllDrugs() {
         ApiResponse<List<Drugs>> apiResponse = new ApiResponse<>();
         List<Drugs> drugsList = mainDrugRepository.findAll();
         apiResponse.setData(drugsList);
@@ -148,7 +148,7 @@ public class DrugService {
     }
 
     // Update an existing drug by ID
-    public ApiResponse<Drugs> updateDrugMain(String id, Drugs updatedDrug, String token) {
+    public ApiResponse<Drugs> updateDrug(String id, Drugs updatedDrug, String token) {
         ApiResponse<Drugs> apiResponse = new ApiResponse<>();
         if (!jwtService.isAdmin(token)) {
             apiResponse.setMessage("unauthorized");
@@ -169,7 +169,6 @@ public class DrugService {
         Drugs existingDrug = existingDrugOpt.get();
         existingDrug.setActiveIngredientId(updatedDrug.getActiveIngredientId());
         existingDrug.setCategoryId(updatedDrug.getCategoryId());
-        existingDrug.setBrandName(updatedDrug.getBrandName());
         existingDrug.setDrugName(updatedDrug.getDrugName());
         existingDrug.setDescription(updatedDrug.getDescription());
         existingDrug.setLogo(updatedDrug.getLogo());
@@ -183,7 +182,7 @@ public class DrugService {
     }
 
     // Delete an existing drug by ID
-    public ApiResponse<Void> deleteDrugMain(String id, String token) {
+    public ApiResponse<Void> deleteDrug(String id, String token) {
         ApiResponse<Void> apiResponse = new ApiResponse<>();
         if (!jwtService.isAdmin(token)) {
             apiResponse.setMessage("unauthorized");
@@ -205,6 +204,22 @@ public class DrugService {
         apiResponse.setStatusCode(200);
         apiResponse.setMessage("Drug deleted successfully");
         return apiResponse;
+    }
+    // Method to search drugs by name
+    public ApiResponse<List<Drugs>> searchDrugsByName(String name) {
+        ApiResponse<List<Drugs>> response = new ApiResponse<>();
+        try {
+            List<Drugs> drugs = mainDrugRepository.findByDrugNameContainingIgnoreCase(name);
+            response.setData(drugs);
+            response.setMessage("Drugs found with name containing: " + name);
+            response.setStatus(true);
+            response.setStatusCode(200);
+        } catch (Exception e) {
+            response.setStatus(false);
+            response.setMessage("Error: " + e.getMessage());
+            response.setStatusCode(400);
+        }
+        return response;
     }
 
     // Get branches that have the drug

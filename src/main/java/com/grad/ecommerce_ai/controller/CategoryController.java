@@ -45,7 +45,7 @@ public class CategoryController {
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<Category>> updateCategory(@PathVariable String id,
                                                                 @RequestBody Category updatedCategory,
-                                                                @RequestHeader("Authorization") String token) {
+                                                                @RequestHeader String token) {
         ApiResponse<Category> response = categoryService.updateCategory(id, updatedCategory, token);
         return ResponseEntity.status(response.getStatusCode()).body(response);
     }

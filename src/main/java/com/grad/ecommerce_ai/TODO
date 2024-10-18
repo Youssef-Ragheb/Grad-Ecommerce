@@ -1,9 +1,8 @@
 
-TODO:
-create DTOS for entities done
-create user with 2 types and see the structure done
-implement the security on the project and JWT done
-search for ecommerce structure and implement
-
+TODO add CloudNary to store images & and create it's service and controller
+TODO create template for products view
+TODO create template for one product view with more details
+TODO test all apis and start working on RBAC
+TODO edit place an order and removing items from stock
 
 

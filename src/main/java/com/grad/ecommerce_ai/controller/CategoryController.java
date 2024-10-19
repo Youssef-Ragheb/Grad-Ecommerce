@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 //@CrossOrigin(origins = "http://localhost:3000")
 @RestController
-@RequestMapping("/api/categories")
+@RequestMapping("/api/category")
 public class CategoryController {
 
     private final CategoryService categoryService;
@@ -18,11 +18,10 @@ public class CategoryController {
         this.categoryService = categoryService;
     }
 
-    // Create a new category
+
     @PostMapping
     public ResponseEntity<ApiResponse<Category>> createCategory(@RequestBody Category category,
-                                                                @RequestHeader("Authorization") String token) {
-        // Call service to create the category
+                                                                @RequestHeader String token) {
         ApiResponse<Category> response = categoryService.createCategory(category, token);
         return ResponseEntity.status(response.getStatusCode()).body(response);
     }
@@ -53,7 +52,7 @@ public class CategoryController {
     // Delete a category
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteCategory(@PathVariable String id,
-                                                            @RequestHeader("Authorization") String token) {
+                                                            @RequestHeader String token) {
         ApiResponse<Void> response = categoryService.deleteCategory(id, token);
         return ResponseEntity.status(response.getStatusCode()).body(response);
     }

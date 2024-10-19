@@ -27,5 +27,15 @@ public class CloudinaryManager {
         }
         return "failure";
     }
+//    public Boolean deleteImageOnCloud(String imageUrl) throws IOException {
+//        String imageURL = cloudinary.uploader()
+//                .upload(imageFile.getBytes(), ObjectUtils.asMap("public_id", UUID.randomUUID().toString()))
+//                .get("url")
+//                .toString();
+//        if (!imageURL.isBlank()) {
+//            return imageURL;
+//        }
+//        return "failure";
+//    }
 
 }

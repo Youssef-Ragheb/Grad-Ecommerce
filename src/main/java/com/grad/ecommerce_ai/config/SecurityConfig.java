@@ -42,7 +42,7 @@ public class SecurityConfig {
 
         httpSecurity.authorizeHttpRequests(request -> request
                 .requestMatchers
-                        ("api/signup/client","api/signup/create/admin",
+                        ("api/**","/api/categories","api/signup/client","api/signup/create/admin",
                                 "api/login","send-email",
                                 "api/signup/company","/api/fetch","/swagger-ui/index.html","/swagger-ui/swagger-config","/swagger-ui/*").permitAll()
                 .anyRequest().authenticated()

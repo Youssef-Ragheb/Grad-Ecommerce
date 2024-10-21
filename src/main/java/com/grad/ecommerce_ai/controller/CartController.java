@@ -16,24 +16,17 @@ public class CartController {
     public CartController(CartService cartService) {
         this.cartService = cartService;
     }
-/*
-    // Add an item to the cart
-//    @PostMapping("/add")
-//    public ResponseEntity<ApiResponse<Cart>> addToCart(@RequestBody Item item, @RequestHeader("Authorization") String token) {
-//        ApiResponse<Cart> response = cartService.addToCart(item, token);
-//        return ResponseEntity.status(response.getStatusCode()).body(response);
-//    }
-*/
+
     // Remove an item from the cart
     @DeleteMapping("/remove")
-    public ResponseEntity<ApiResponse<Cart>> removeFromCart(@RequestBody Item item, @RequestHeader("Authorization") String token) {
+    public ResponseEntity<ApiResponse<Cart>> removeFromCart(@RequestBody Item item, @RequestHeader String token) {
         ApiResponse<Cart> response = cartService.removeFromCart(item, token);
         return ResponseEntity.status(response.getStatusCode()).body(response);
     }
 
     // Get all items in the cart
     @GetMapping("/items")
-    public ResponseEntity<ApiResponse<Cart>> getItemsFromCart(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<ApiResponse<Cart>> getItemsFromCart(@RequestHeader String token) {
         ApiResponse<Cart> response = cartService.getItemsFromCart(token);
         return ResponseEntity.status(response.getStatusCode()).body(response);
     }

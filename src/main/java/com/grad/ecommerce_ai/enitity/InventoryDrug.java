@@ -14,7 +14,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class InventoryDrug {
     @Id
     private String id;
-    private String DrugId;
+    private String drugId;
     private String categoryId;
     private String activeIngredientId;
     private float price;

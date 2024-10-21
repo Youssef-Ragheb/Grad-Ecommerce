@@ -2,8 +2,6 @@ package com.grad.ecommerce_ai.mappers;
 
 import com.grad.ecommerce_ai.dto.UserDTO;
 import com.grad.ecommerce_ai.enitity.User;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class UserMapper {
 
@@ -57,13 +55,13 @@ public class UserMapper {
         return userDTO;
     }
 
-    // Convert a list of UserDTO to a list of User
-    public static List<User> dtoListToUserList(List<UserDTO> userDTOList) {
-        return userDTOList.stream().map(UserMapper::dtoToUser).collect(Collectors.toList());
-    }
-
-    // Convert a list of User to a list of UserDTO
-    public static List<UserDTO> userListToDtoList(List<User> userList) {
-        return userList.stream().map(UserMapper::userToDto).collect(Collectors.toList());
-    }
+//    // Convert a list of UserDTO to a list of User
+//    public static List<User> dtoListToUserList(List<UserDTO> userDTOList) {
+//        return userDTOList.stream().map(UserMapper::dtoToUser).collect(Collectors.toList());
+//    }
+//
+//    // Convert a list of User to a list of UserDTO
+//    public static List<UserDTO> userListToDtoList(List<User> userList) {
+//        return userList.stream().map(UserMapper::userToDto).collect(Collectors.toList());
+//    }
 }

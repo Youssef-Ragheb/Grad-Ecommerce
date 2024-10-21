@@ -18,12 +18,12 @@ public class OrderController {
     }
 
     @PostMapping("/save")
-    public ApiResponse<Order> saveOrder(@RequestBody Order order, @RequestHeader("Authorization") String token) {
+    public ApiResponse<Order> saveOrder(@RequestBody Order order, @RequestHeader String token) {
         return orderService.saveOrder(order, token);
     }
 
     @GetMapping("/{id}")
-    public ApiResponse<Order> getOrder(@PathVariable String id, @RequestHeader("Authorization") String token) {
+    public ApiResponse<Order> getOrder(@PathVariable String id, @RequestHeader String token) {
         return orderService.getOrderById(id, token);
     }
 

@@ -44,7 +44,8 @@ public class WishlistService {
             apiResponse.setStatus(false);
             return apiResponse;
         }
-        if (!mainDrugRepository.existsById(wishlist.getId())) {
+        String drugId = wishlist.getDrugId();
+        if (!mainDrugRepository.existsById(drugId)) {
             apiResponse.setMessage("drug not found");
             apiResponse.setStatusCode(404);
             apiResponse.setData(null);
@@ -53,6 +54,7 @@ public class WishlistService {
         }
         Wishlist wishlistEntity = new Wishlist();
         wishlistEntity.setUserId(userId);
+        wishlistEntity.setDrugId(drugId);
         apiResponse.setData(wishlistRepository.save(wishlistEntity));
         apiResponse.setMessage("wishlist saved");
         apiResponse.setStatusCode(200);
@@ -103,7 +105,14 @@ public class WishlistService {
             apiResponse.setStatus(false);
             return apiResponse;
         }
-        wishlistRepository.delete(wishlist);
+        if(!wishlistRepository.existsById(wishlist.getId())) {
+            apiResponse.setData(false);
+            apiResponse.setStatusCode(404);
+            apiResponse.setStatus(false);
+            apiResponse.setMessage("wishlist not found");
+            return apiResponse;
+        }
+        wishlistRepository.deleteById(wishlist.getId());
         apiResponse.setData(true);
         apiResponse.setStatusCode(200);
         apiResponse.setStatus(true);

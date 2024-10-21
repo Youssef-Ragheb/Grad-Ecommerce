@@ -57,7 +57,6 @@ public class ActiveIngredientService {
             apiResponse.setStatusCode(200);
             return apiResponse;
         }catch (Exception e){
-            e.printStackTrace();  // This will log the exception in the console
             apiResponse.setData(null);
             apiResponse.setMessage("Active Ingredient not found: " + e.getMessage());
             apiResponse.setStatus(false);

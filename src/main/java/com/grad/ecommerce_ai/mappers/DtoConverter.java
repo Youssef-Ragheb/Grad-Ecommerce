@@ -51,27 +51,27 @@ public class DtoConverter {
         return dto;
     }
 
-    public static BranchDTO branchToBranchWithCompanyDto(Branch branch) {
-        BranchDTO dto = branchToDto(branch);
-
-        if (branch.getCompany() != null) {
-            dto.setCompanyDto(companyToDto(branch.getCompany()));
-        }
-
-        return dto;
-    }
-
-    public static Company dtoToCompany(CompanyDTO companyDto) {
-        Company company = new Company();
-
-        company.setCompanyId(companyDto.getCompanyId());
-        company.setName(companyDto.getName());
-        company.setCompanyEmail(companyDto.getCompanyEmail());
-        company.setPhone(companyDto.getPhone());
-        company.setLogoUrl(companyDto.getLogoUrl());
-
-        return company;
-    }
+//    public static BranchDTO branchToBranchWithCompanyDto(Branch branch) {
+//        BranchDTO dto = branchToDto(branch);
+//
+//        if (branch.getCompany() != null) {
+//            dto.setCompanyDto(companyToDto(branch.getCompany()));
+//        }
+//
+//        return dto;
+//    }
+//
+//    public static Company dtoToCompany(CompanyDTO companyDto) {
+//        Company company = new Company();
+//
+//        company.setCompanyId(companyDto.getCompanyId());
+//        company.setName(companyDto.getName());
+//        company.setCompanyEmail(companyDto.getCompanyEmail());
+//        company.setPhone(companyDto.getPhone());
+//        company.setLogoUrl(companyDto.getLogoUrl());
+//
+//        return company;
+//    }
 
     public static CompanyDTO companyToDto(Company company) {
         CompanyDTO dto = new CompanyDTO();
@@ -85,15 +85,15 @@ public class DtoConverter {
         return dto;
     }
 
-    public static CompanyDTO companyToCompanyWithBranchesDto(Company company) {
-        CompanyDTO dto = companyToDto(company);
-
-        if (company.getBranchList() != null) {
-            dto.setBranchList(branchListToDtoList(company.getBranchList()));
-        }
-
-        return dto;
-    }
+//    public static CompanyDTO companyToCompanyWithBranchesDto(Company company) {
+//        CompanyDTO dto = companyToDto(company);
+//
+//        if (company.getBranchList() != null) {
+//            dto.setBranchList(branchListToDtoList(company.getBranchList()));
+//        }
+//
+//        return dto;
+//    }
 }
 
 

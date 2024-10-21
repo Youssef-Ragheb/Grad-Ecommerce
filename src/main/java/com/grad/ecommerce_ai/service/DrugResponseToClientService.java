@@ -159,17 +159,23 @@ public class DrugResponseToClientService {
                 response.setStatus(false);
                 return response;
             }
-            drugResponseDetailsDto.setCategoryName(category.get().getCategoryName());
+            String CategoryName = category.get().getCategoryName();
+            drugResponseDetailsDto.setCategoryName(CategoryName);
+            response.setStatusCode(200);
+            response.setStatus(true);
+            response.setData(drugResponseDetailsDto);
+            response.setMessage("found");
+            return response;
         } catch (Exception e) {
             response.setData(null);
             response.setStatusCode(404);
             response.setStatus(false);
-            response.setMessage(e.getMessage());
+            response.setMessage("drug not found");
             return response;
         }
 
 
-        return response;
+
     }
 
 }

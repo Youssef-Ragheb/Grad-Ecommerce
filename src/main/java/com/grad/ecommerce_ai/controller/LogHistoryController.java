@@ -19,13 +19,13 @@ public class LogHistoryController {
     }
 
     @PostMapping("/add-order")
-    public ApiResponse<LogHistory> addOrderToLog(@RequestParam String orderId, @RequestHeader("Authorization") String token) {
+    public ApiResponse<LogHistory> addOrderToLog(@RequestParam String orderId, @RequestHeader String token) {
         Long userId = jwtService.extractUserId(token); // assuming JWT token service is in log service too
         return logHistoryService.addOrderToLog(orderId, userId);
     }
 
     @GetMapping("/user")
-    public ApiResponse<LogHistory> getUserLogHistory(@RequestHeader("Authorization") String token) {
+    public ApiResponse<LogHistory> getUserLogHistory(@RequestHeader String token) {
         Long userId = jwtService.extractUserId(token);
         return logHistoryService.getUserLogHistory(userId);
     }

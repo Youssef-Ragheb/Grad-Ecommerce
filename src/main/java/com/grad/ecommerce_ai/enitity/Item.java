@@ -1,6 +1,7 @@
 package com.grad.ecommerce_ai.enitity;
 
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,9 +16,12 @@ public class Item {
     @Id
     private String id;
     @Indexed
-    private String orderId; // Optional, can link to Order (in MongoDB or MySQL)
-    private String drugId;  // Relates to drug in MongoDB
+    private String orderId;
+    @NotNull// Optional, can link to Order (in MongoDB or MySQL)
+    private String drugId;
+    @NotNull// Relates to drug in MongoDB
     private Long branchId;// Relates to branch in MySQL
     private float price;
     private int quantity;
+    private Long userId;
 }

@@ -1,14 +1,8 @@
 package com.grad.ecommerce_ai.service;
 
 import com.grad.ecommerce_ai.dto.ApiResponse;
-import com.grad.ecommerce_ai.enitity.Cart;
-import com.grad.ecommerce_ai.enitity.Item;
-import com.grad.ecommerce_ai.enitity.User;
-import com.grad.ecommerce_ai.enitity.UserRoles;
-import com.grad.ecommerce_ai.repository.BranchRepository;
-import com.grad.ecommerce_ai.repository.CartRepository;
-import com.grad.ecommerce_ai.repository.ItemRepository;
-import com.grad.ecommerce_ai.repository.UserRepository;
+import com.grad.ecommerce_ai.enitity.*;
+import com.grad.ecommerce_ai.repository.*;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,18 +16,22 @@ public class ItemService {
     private final BranchRepository branchRepository;
     private final CartService cartService;
     private final CartRepository cartRepository;
+    private final InventoryDrugRepository inventoryDrugRepository;
 
-    public ItemService(ItemRepository itemRepository, JwtService jwtService, UserRepository userRepository, BranchRepository branchRepository, CartService cartService, CartRepository cartRepository) {
+    public ItemService(ItemRepository itemRepository, JwtService jwtService, UserRepository userRepository, BranchRepository branchRepository, CartService cartService, CartRepository cartRepository, InventoryDrugRepository inventoryDrugRepository) {
         this.itemRepository = itemRepository;
         this.jwtService = jwtService;
         this.userRepository = userRepository;
         this.branchRepository = branchRepository;
         this.cartService = cartService;
         this.cartRepository = cartRepository;
+        this.inventoryDrugRepository = inventoryDrugRepository;
     }
+
     public ApiResponse<Item> save(Item item, String token) {
         ApiResponse<Item> apiResponse = new ApiResponse<>();
         Long userId = jwtService.extractUserId(token);
+        item.setUserId(userId);
         Optional<User> userOptional = userRepository.findById(userId);
         if (userOptional.isPresent()&& userOptional.get().getUserRoles().equals(UserRoles.ROLE_CLIENT)) {
             if (!branchRepository.existsById(item.getBranchId())){
@@ -43,6 +41,22 @@ public class ItemService {
                 return apiResponse;
 
             }
+
+            Optional<InventoryDrug> inventoryDrug = inventoryDrugRepository.findByDrugIdAndBranchId(item.getDrugId(),item.getBranchId());
+            if(inventoryDrug.isEmpty()){
+                apiResponse.setMessage("drug or branch does not exist");
+                apiResponse.setStatusCode(404);
+                apiResponse.setStatus(false);
+                return apiResponse;
+            }
+            if(inventoryDrug.get().getStock()<item.getQuantity()){
+                apiResponse.setMessage("Quantity exceeded");
+                apiResponse.setStatusCode(400);
+                apiResponse.setStatus(false);
+                return apiResponse;
+            }
+            InventoryDrug invDrug = inventoryDrug.get();
+            item.setPrice(invDrug.getPrice());
             Item savedItem = itemRepository.save(item);
             cartService.addToCart(savedItem,token);
             apiResponse.setMessage("Successfully saved item");

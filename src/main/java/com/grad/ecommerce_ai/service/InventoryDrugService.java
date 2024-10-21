@@ -30,6 +30,7 @@ public class InventoryDrugService {
         }
         response.setStatus(true);
         response.setMessage("success");
+        response.setStatusCode(200);
         response.setData(inventoryDrugRepository.save(inventoryDrug));
         return response;
     }

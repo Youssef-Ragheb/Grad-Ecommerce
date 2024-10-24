@@ -213,5 +213,13 @@ public class UserService {
         response.setStatus(true);
         return response;
     }
-
+    public ApiResponse<String> getUserRole(String token){
+        ApiResponse<String> response = new ApiResponse<>();
+        Long userId = jwtService.extractUserId(token);
+        User user = userRepository.findById(userId).orElse(null);
+        assert user != null;
+        response.setData(user.getUserRoles().toString());
+        response.setStatusCode(200);
+        return response;
+    }
 }

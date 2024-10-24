@@ -15,7 +15,8 @@ public class UserController {
     }
 
     @PostMapping("/role")
-    public ApiResponse<String> getUserRole(@RequestBody String token){
-       return userService.getUserRole(token);
+    public ApiResponse<String> getUserRole(@RequestParam String token){
+
+        return userService.getUserRole(token);
     }
 }

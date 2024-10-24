@@ -1,6 +1,7 @@
 package com.grad.ecommerce_ai.service;
 
 import com.grad.ecommerce_ai.dto.ApiResponse;
+import com.grad.ecommerce_ai.dto.TokenDTO;
 import com.grad.ecommerce_ai.dto.UserCompanyDTO;
 import com.grad.ecommerce_ai.dto.UserDTO;
 import com.grad.ecommerce_ai.enitity.Branch;
@@ -213,11 +214,12 @@ public class UserService {
         response.setStatus(true);
         return response;
     }
-    public ApiResponse<String> getUserRole(String token){
+
+    public ApiResponse<String> getUserRole(TokenDTO token){
         ApiResponse<String> response = new ApiResponse<>();
-        Long userId = jwtService.extractUserId(token);
+        Long userId = jwtService.extractUserId(token.getToken());
         User user = userRepository.findById(userId).orElse(null);
-        assert user != null;
+        //assert user != null;
         response.setData(user.getUserRoles().toString());
         response.setStatusCode(200);
         return response;

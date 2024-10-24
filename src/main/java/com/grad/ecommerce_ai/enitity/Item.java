@@ -22,6 +22,7 @@ public class Item {
     @NotNull// Relates to drug in MongoDB
     private Long branchId;// Relates to branch in MySQL
     private float price;
+    @NotNull
     private int quantity;
     private Long userId;
 }

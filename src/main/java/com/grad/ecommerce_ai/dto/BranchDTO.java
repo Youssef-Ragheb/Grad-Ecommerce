@@ -15,7 +15,7 @@ public class BranchDTO {
     private String city;
 
     private Boolean branchState;
-    @NotBlank
+
     private String zip;
     @NotBlank
     private String phone;

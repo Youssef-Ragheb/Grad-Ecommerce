@@ -1,13 +1,10 @@
 package com.grad.ecommerce_ai.service;
 
 import com.grad.ecommerce_ai.dto.ApiResponse;
-import com.grad.ecommerce_ai.dto.BranchDTO;
-import com.grad.ecommerce_ai.dto.DrugResponseDto;
 import com.grad.ecommerce_ai.dto.InventoryDrugDTO;
 import com.grad.ecommerce_ai.enitity.Branch;
 import com.grad.ecommerce_ai.enitity.Drugs;
 import com.grad.ecommerce_ai.enitity.InventoryDrug;
-import com.grad.ecommerce_ai.enitity.User;
 import com.grad.ecommerce_ai.repository.BranchRepository;
 import com.grad.ecommerce_ai.repository.InventoryDrugRepository;
 import com.grad.ecommerce_ai.repository.MainDrugRepository;
@@ -15,30 +12,24 @@ import com.grad.ecommerce_ai.repository.UserRepository;
 import com.grad.ecommerce_ai.utils.CheckAuth;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.grad.ecommerce_ai.mappers.DtoConverter.branchToDto;
 import static com.grad.ecommerce_ai.mappers.InventoryDrugMapper.*;
 
 @Service
 public class DrugService {
     private final InventoryDrugRepository inventoryDrugRepository;
     private final BranchRepository branchRepository;
-    private final UserRepository userRepository;
     private final JwtService jwtService;
-
     private final ActiveIngredientService activeIngredientService;
-
     private final CheckAuth checkAuth;
     private final MainDrugRepository mainDrugRepository;
 
 
-    public DrugService(InventoryDrugRepository inventoryDrugRepository, BranchRepository branchRepository, UserRepository userRepository, JwtService jwtService, ActiveIngredientService activeIngredientService, CheckAuth checkAuth, MainDrugRepository mainDrugRepository) {
+    public DrugService(InventoryDrugRepository inventoryDrugRepository, BranchRepository branchRepository, JwtService jwtService, ActiveIngredientService activeIngredientService, CheckAuth checkAuth, MainDrugRepository mainDrugRepository) {
         this.inventoryDrugRepository = inventoryDrugRepository;
         this.branchRepository = branchRepository;
-        this.userRepository = userRepository;
         this.jwtService = jwtService;
         this.activeIngredientService = activeIngredientService;
         this.checkAuth = checkAuth;
@@ -105,7 +96,7 @@ public class DrugService {
   */
     public ApiResponse<Drugs> addDrugToMain(Drugs drug, String token) {
         ApiResponse<Drugs> apiResponse = new ApiResponse<>();
-        if (!jwtService.isAdmin(token)) {
+        if (jwtService.isAdmin(token)) {
             apiResponse.setMessage("unauthorized");
             apiResponse.setData(null);
             apiResponse.setStatusCode(401);
@@ -150,7 +141,7 @@ public class DrugService {
     // Update an existing drug by ID
     public ApiResponse<Drugs> updateDrug(String id, Drugs updatedDrug, String token) {
         ApiResponse<Drugs> apiResponse = new ApiResponse<>();
-        if (!jwtService.isAdmin(token)) {
+        if (jwtService.isAdmin(token)) {
             apiResponse.setMessage("unauthorized");
             apiResponse.setData(null);
             apiResponse.setStatusCode(401);
@@ -184,7 +175,7 @@ public class DrugService {
     // Delete an existing drug by ID
     public ApiResponse<Void> deleteDrug(String id, String token) {
         ApiResponse<Void> apiResponse = new ApiResponse<>();
-        if (!jwtService.isAdmin(token)) {
+        if (jwtService.isAdmin(token)) {
             apiResponse.setMessage("unauthorized");
             apiResponse.setStatusCode(401);
             apiResponse.setStatus(false);

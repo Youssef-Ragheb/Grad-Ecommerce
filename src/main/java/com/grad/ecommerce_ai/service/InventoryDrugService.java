@@ -1,23 +1,28 @@
 package com.grad.ecommerce_ai.service;
 
 import com.grad.ecommerce_ai.dto.ApiResponse;
+import com.grad.ecommerce_ai.enitity.Drugs;
 import com.grad.ecommerce_ai.enitity.InventoryDrug;
 import com.grad.ecommerce_ai.repository.InventoryDrugRepository;
+import com.grad.ecommerce_ai.repository.MainDrugRepository;
 import com.grad.ecommerce_ai.utils.CheckAuth;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class InventoryDrugService {
     private final InventoryDrugRepository inventoryDrugRepository;
     private final JwtService jwtService;
     private final CheckAuth checkAuth;
+    private final MainDrugRepository mainDrugRepository;
 
-    public InventoryDrugService(InventoryDrugRepository inventoryDrugRepository, JwtService jwtService, CheckAuth checkAuth) {
+    public InventoryDrugService(InventoryDrugRepository inventoryDrugRepository, JwtService jwtService, CheckAuth checkAuth, MainDrugRepository mainDrugRepository) {
         this.inventoryDrugRepository = inventoryDrugRepository;
         this.jwtService = jwtService;
         this.checkAuth = checkAuth;
+        this.mainDrugRepository = mainDrugRepository;
     }
     public ApiResponse<InventoryDrug> saveInventoryDrug(InventoryDrug inventoryDrug, String token){
         ApiResponse<InventoryDrug> response = new ApiResponse<>();
@@ -28,6 +33,15 @@ public class InventoryDrugService {
             response.setStatusCode(401);
             return response;
         }
+        Optional<Drugs> drug = mainDrugRepository.findById(inventoryDrug.getDrugId());
+        if(drug.isEmpty()){
+            response.setStatus(false);
+            response.setMessage("drug not found");
+            response.setStatusCode(404);
+            return response;
+        }
+        inventoryDrug.setActiveIngredientId(drug.get().getActiveIngredientId());
+        inventoryDrug.setCategoryId(drug.get().getCategoryId());
         response.setStatus(true);
         response.setMessage("success");
         response.setStatusCode(200);
@@ -130,11 +144,18 @@ public class InventoryDrugService {
                 response.setStatusCode(401);
                 return response;
             }
+            Optional<Drugs> drug = mainDrugRepository.findById(inventoryDrug.getDrugId());
+            if(drug.isEmpty()){
+                response.setStatus(false);
+                response.setStatusCode(404);
+                response.setMessage("drug not found ");
+                return response;
+            }
 
             // Update the fields of the existing inventory drug
             existingInventoryDrug.setDrugId(inventoryDrug.getDrugId());
-            existingInventoryDrug.setCategoryId(inventoryDrug.getCategoryId());
-            existingInventoryDrug.setActiveIngredientId(inventoryDrug.getActiveIngredientId());
+            existingInventoryDrug.setCategoryId(drug.get().getCategoryId());
+            existingInventoryDrug.setActiveIngredientId(drug.get().getActiveIngredientId());
             existingInventoryDrug.setPrice(inventoryDrug.getPrice());
             existingInventoryDrug.setStock(inventoryDrug.getStock());
             existingInventoryDrug.setBranchId(inventoryDrug.getBranchId());

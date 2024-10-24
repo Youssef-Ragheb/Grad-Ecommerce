@@ -1,11 +1,13 @@
 package com.grad.ecommerce_ai.controller.request;
 
 import com.grad.ecommerce_ai.dto.ApiResponse;
+import com.grad.ecommerce_ai.dto.UserCompanyDTO;
 import com.grad.ecommerce_ai.dto.UserDTO;
 import com.grad.ecommerce_ai.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-//@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/signup")
 public class SignUpController {
@@ -21,8 +23,8 @@ public class SignUpController {
         return ResponseEntity.status(response.getStatusCode()).body(response);
     }
     @PostMapping("/company")
-    public ResponseEntity<ApiResponse<UserDTO>> signUpForCompany(@RequestBody UserDTO userDTO) {
-        ApiResponse<UserDTO> response = userService.createCompanyAccount(userDTO);
+    public ResponseEntity<ApiResponse<UserCompanyDTO>> signUpForCompany(@RequestBody @Valid UserCompanyDTO userDTO) {
+        ApiResponse<UserCompanyDTO> response = userService.createCompanyAccount(userDTO);
         return ResponseEntity.status(response.getStatusCode()).body(response);
     }
     @PostMapping("/create/admin")

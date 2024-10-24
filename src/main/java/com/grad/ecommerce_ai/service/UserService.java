@@ -1,17 +1,18 @@
 package com.grad.ecommerce_ai.service;
 
 import com.grad.ecommerce_ai.dto.ApiResponse;
+import com.grad.ecommerce_ai.dto.UserCompanyDTO;
 import com.grad.ecommerce_ai.dto.UserDTO;
 import com.grad.ecommerce_ai.enitity.Branch;
+import com.grad.ecommerce_ai.enitity.Company;
 import com.grad.ecommerce_ai.enitity.User;
 import com.grad.ecommerce_ai.enitity.UserRoles;
 import com.grad.ecommerce_ai.enitity.details.AdminDetails;
+import com.grad.ecommerce_ai.enitity.details.CompanyDetails;
 import com.grad.ecommerce_ai.enitity.details.EmployeeDetails;
-import com.grad.ecommerce_ai.repository.AdminDetailsRepository;
-import com.grad.ecommerce_ai.repository.BranchRepository;
-import com.grad.ecommerce_ai.repository.EmployeeDetailsRepository;
-import com.grad.ecommerce_ai.repository.UserRepository;
+import com.grad.ecommerce_ai.repository.*;
 import com.grad.ecommerce_ai.utils.CheckAuth;
+import jakarta.transaction.Transactional;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -30,14 +31,18 @@ public class UserService {
     private final JwtService jwtService;
     private final BranchRepository branchRepository;
     private final EmployeeDetailsRepository employeeDetailsRepository;
+    private final CompanyRepository companyRepository;
+    private final CompanyDetailsRepository companyDetailsRepository;
 
-    public UserService(UserRepository userRepository, AdminDetailsRepository adminDetailsRepository, CheckAuth checkAuth, JwtService jwtService, BranchRepository branchRepository, EmployeeDetailsRepository employeeDetailsRepository) {
+    public UserService(UserRepository userRepository, AdminDetailsRepository adminDetailsRepository, CheckAuth checkAuth, JwtService jwtService, BranchRepository branchRepository, EmployeeDetailsRepository employeeDetailsRepository, CompanyRepository companyRepository, CompanyDetailsRepository companyDetailsRepository) {
         this.userRepository = userRepository;
         this.adminDetailsRepository = adminDetailsRepository;
         this.checkAuth = checkAuth;
         this.jwtService = jwtService;
         this.branchRepository = branchRepository;
         this.employeeDetailsRepository = employeeDetailsRepository;
+        this.companyRepository = companyRepository;
+        this.companyDetailsRepository = companyDetailsRepository;
     }
 
     //    public ApiResponse<Boolean> checkMailExists(String mail) {
@@ -115,9 +120,9 @@ public class UserService {
         response.setStatus(true);
         return response;
     }
-
-    public ApiResponse<UserDTO> createCompanyAccount(UserDTO userDTO) {
-        ApiResponse<UserDTO> response = new ApiResponse<>();
+    @Transactional
+    public ApiResponse<UserCompanyDTO> createCompanyAccount(UserCompanyDTO userDTO) {
+        ApiResponse<UserCompanyDTO> response = new ApiResponse<>();
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
         if (userRepository.existsByEmail(userDTO.getEmail())) {
@@ -127,15 +132,38 @@ public class UserService {
             response.setStatusCode(500);
             return response;
         }
-        userDTO.setEnabled(true);
-        userDTO.setUserRoles(UserRoles.ROLE_COMPANY);
-        userDTO.setPassword(encoder.encode(userDTO.getPassword()));
-        userDTO.setCompanyRegistrationCompleted(false);
-        userDTO.setDateCreated(OffsetDateTime.now());
-        User user = dtoToUser(userDTO);
+        User user = new User();
+        user.setEnabled(true);
+        user.setUserRoles(UserRoles.ROLE_COMPANY);
+        user.setPassword(encoder.encode(userDTO.getPassword()));
+        user.setCompanyRegistrationCompleted(true);
+        user.setDateCreated(OffsetDateTime.now());
+        user.setEmail(userDTO.getEmail());
+        user.setFirstName(userDTO.getFirstName());
+        user.setLastName(userDTO.getLastName());
+        user.setCity(userDTO.getCity());
+        user.setGender(userDTO.getGender());
+        user.setAddress(userDTO.getAddress());
+        user.setPhone(userDTO.getPhone());
+       if(companyRepository.existsByCompanyEmailOrName
+                (userDTO.getCompanyEmail(), userDTO.getCompanyName())){
+           response.setStatus(false);
+           response.setMessage("Company already exists with name or email");
+           response.setData(null);
+           response.setStatusCode(500);
+       }
+        Company company = new Company();
+        company.setCompanyEmail(userDTO.getCompanyEmail());
+        company.setName(userDTO.getCompanyName());
+        company.setPhone(userDTO.getCompanyPhone());
+        company.setLogoUrl(userDTO.getLogoUrl());
+        CompanyDetails companyDetails = new CompanyDetails();
+        companyDetails.setCompany(companyRepository.save(company));
+        companyDetails.setUser(userRepository.save(user));
+        companyDetailsRepository.save(companyDetails);
         response.setStatusCode(200);
-        response.setData(userToDto(userRepository.save(user)));
-        response.setMessage("Successfully created client");
+        response.setData(userDTO);
+        response.setMessage("Successfully created ");
         response.setStatus(true);
         return response;
     }

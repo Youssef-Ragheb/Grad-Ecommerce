@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-//@CrossOrigin(origins = "http://localhost:3000")
+
 @RestController
 @RequestMapping("/api/drugs")
 public class DrugController {
@@ -49,12 +49,12 @@ public class DrugController {
     }
 
     @PutMapping("/{id}")
-    public ApiResponse<Drugs> updateDrug(@PathVariable String id, @RequestBody Drugs updatedDrug, @RequestHeader("Authorization") String token) {
+    public ApiResponse<Drugs> updateDrug(@PathVariable String id, @RequestBody Drugs updatedDrug, @RequestHeader String token) {
         return drugsService.updateDrug(id, updatedDrug, token);
     }
 
     @DeleteMapping("/{id}")
-    public ApiResponse<Void> deleteDrug(@PathVariable String id, @RequestHeader("Authorization") String token) {
+    public ApiResponse<Void> deleteDrug(@PathVariable String id, @RequestHeader String token) {
         return drugsService.deleteDrug(id, token);
     }
 }

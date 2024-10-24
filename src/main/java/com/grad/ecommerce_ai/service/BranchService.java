@@ -60,6 +60,7 @@ public class BranchService {
         apiResponse.setStatus(false);
         return apiResponse;
     }
+
     private boolean checkBranchName(String branchName, Company company) {
         List<Branch> branches = company.getBranchList();
         for (Branch branch : branches) {
@@ -69,6 +70,7 @@ public class BranchService {
         }
         return false;
     }
+
     public ApiResponse<BranchDTO> createBranch(BranchDTO branchDTO, Long companyId, String token) {
         ApiResponse<BranchDTO> apiResponse = new ApiResponse<>();
         Long userId = jwtService.extractUserId(token);
@@ -99,7 +101,7 @@ public class BranchService {
             apiResponse.setStatus(false);
             return apiResponse;
         }
-
+        branch.setBranchState(true);
         Branch savedBranch = branchRepository.save(branch);
         BranchDTO savedBranchDTO = branchToDto(savedBranch);
         savedBranchDTO.setCompanyDto(companyToDto(savedBranch.getCompany()));
@@ -110,7 +112,6 @@ public class BranchService {
         apiResponse.setStatus(true);
         return apiResponse;
     }
-
 
     public ApiResponse<List<BranchDTO>> getBranchesByPharmacyId(Long pharmacyId) {
         ApiResponse<List<BranchDTO>> apiResponse = new ApiResponse<>();
@@ -251,6 +252,7 @@ public class BranchService {
         apiResponse.setStatus(true);
         return apiResponse;
     }
+
     public ApiResponse<List<InventoryDrug>> getBranchDrugs(Long branchId) {
         ApiResponse<List<InventoryDrug>> apiResponse = new ApiResponse<>();
         if(!branchRepository.existsById(branchId)) {

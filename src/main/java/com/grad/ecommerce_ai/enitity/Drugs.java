@@ -1,5 +1,6 @@
 package com.grad.ecommerce_ai.enitity;
 
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -15,5 +16,6 @@ public class Drugs {
     private String categoryId;
     private String drugName;
     private String description;
+    @Size(max = 1080)
     private String logo;
 }

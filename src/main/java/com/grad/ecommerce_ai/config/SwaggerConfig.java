@@ -10,34 +10,42 @@ import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.responses.ApiResponse;
+import io.swagger.v3.oas.models.servers.Server;
 import org.springdoc.core.customizers.OperationCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.List;
 
 @Configuration
 public class SwaggerConfig {
 
     @Bean
     public OpenAPI openApiSpec() {
-        return new OpenAPI().components(new Components()
-                .addSchemas("ApiErrorResponse", new ObjectSchema()
-                        .addProperty("status", new IntegerSchema())
-                        .addProperty("code", new StringSchema())
-                        .addProperty("message", new StringSchema())
-                        .addProperty("fieldErrors", new ArraySchema().items(
-                                new Schema<ArraySchema>().$ref("ApiFieldError"))))
-                .addSchemas("ApiFieldError", new ObjectSchema()
-                        .addProperty("code", new StringSchema())
-                        .addProperty("message", new StringSchema())
-                        .addProperty("property", new StringSchema())
-                        .addProperty("rejectedValue", new ObjectSchema())
-                        .addProperty("path", new StringSchema())));
+        return new OpenAPI()
+                .components(new Components()
+                        .addSchemas("ApiErrorResponse", new ObjectSchema()
+                                .addProperty("status", new IntegerSchema())
+                                .addProperty("code", new StringSchema())
+                                .addProperty("message", new StringSchema())
+                                .addProperty("fieldErrors", new ArraySchema().items(
+                                        new Schema<ArraySchema>().$ref("ApiFieldError"))))
+                        .addSchemas("ApiFieldError", new ObjectSchema()
+                                .addProperty("code", new StringSchema())
+                                .addProperty("message", new StringSchema())
+                                .addProperty("property", new StringSchema())
+                                .addProperty("rejectedValue", new ObjectSchema())
+                                .addProperty("path", new StringSchema())))
+                // Add the correct server URL for production
+                .servers(List.of(
+                        new Server().url("https://grad-ecommerce-production.up.railway.app").description("Production server"),
+                        new Server().url("http://localhost:8080").description("Local server")
+                ));
     }
 
     @Bean
     public OperationCustomizer operationCustomizer() {
-        // add error type to each operation
+        // Add error type to each operation
         return (operation, handlerMethod) -> {
             operation.getResponses().addApiResponse("4xx/5xx", new ApiResponse()
                     .description("Error")
@@ -46,5 +54,4 @@ public class SwaggerConfig {
             return operation;
         };
     }
-
 }

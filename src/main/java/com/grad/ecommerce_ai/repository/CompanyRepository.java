@@ -9,6 +9,7 @@ import java.util.Optional;
 
 public interface CompanyRepository extends JpaRepository<Company, Long> {
     Boolean existsByName(String name);
+    Boolean existsByCompanyEmailOrName(String email, String companyName);
     //Boolean existsByEmail(String email);
     Boolean existsByCompanyEmail(String email);
     //Boolean existsByPhone(String phone);

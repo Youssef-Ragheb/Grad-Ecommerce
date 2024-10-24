@@ -32,7 +32,7 @@ public class Company {
     private String companyEmail;
     @Column(nullable = false, unique = true)
     private String phone;
-    public String logoUrl;
+    private String logoUrl;
 
     @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnoreProperties("company")

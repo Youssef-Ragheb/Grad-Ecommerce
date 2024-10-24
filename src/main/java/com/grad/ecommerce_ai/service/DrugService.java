@@ -96,7 +96,7 @@ public class DrugService {
   */
     public ApiResponse<Drugs> addDrugToMain(Drugs drug, String token) {
         ApiResponse<Drugs> apiResponse = new ApiResponse<>();
-        if (jwtService.isAdmin(token)) {
+        if (!jwtService.isAdmin(token)) {
             apiResponse.setMessage("unauthorized");
             apiResponse.setData(null);
             apiResponse.setStatusCode(401);
@@ -141,7 +141,7 @@ public class DrugService {
     // Update an existing drug by ID
     public ApiResponse<Drugs> updateDrug(String id, Drugs updatedDrug, String token) {
         ApiResponse<Drugs> apiResponse = new ApiResponse<>();
-        if (jwtService.isAdmin(token)) {
+        if (!jwtService.isAdmin(token)) {
             apiResponse.setMessage("unauthorized");
             apiResponse.setData(null);
             apiResponse.setStatusCode(401);
@@ -175,7 +175,7 @@ public class DrugService {
     // Delete an existing drug by ID
     public ApiResponse<Void> deleteDrug(String id, String token) {
         ApiResponse<Void> apiResponse = new ApiResponse<>();
-        if (jwtService.isAdmin(token)) {
+        if (!jwtService.isAdmin(token)) {
             apiResponse.setMessage("unauthorized");
             apiResponse.setStatusCode(401);
             apiResponse.setStatus(false);

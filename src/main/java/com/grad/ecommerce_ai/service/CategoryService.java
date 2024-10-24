@@ -81,7 +81,7 @@ public class CategoryService {
         ApiResponse<Category> apiResponse = new ApiResponse<>();
 
         // Check if the user is admin
-        if (jwtTokenUtil.isAdmin(token)) {
+        if (!jwtTokenUtil.isAdmin(token)) {
             apiResponse.setStatusCode(403);
             apiResponse.setMessage("Access denied: only admins can update categories");
             apiResponse.setStatus(false);
@@ -116,7 +116,7 @@ public class CategoryService {
         ApiResponse<Void> apiResponse = new ApiResponse<>();
 
         // Check if the user is admin
-        if (jwtTokenUtil.isAdmin(token)) {
+        if (!jwtTokenUtil.isAdmin(token)) {
             apiResponse.setStatusCode(403);
             apiResponse.setMessage("Access denied: only admins can delete categories");
             apiResponse.setStatus(false);

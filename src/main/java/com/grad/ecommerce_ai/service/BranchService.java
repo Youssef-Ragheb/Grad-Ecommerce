@@ -83,12 +83,12 @@ public class BranchService {
             return apiResponse;
         }
 
-        if (!checkAuth.checkAuthToCompany(userId, companyId)) {
-            apiResponse.setMessage("Unauthorized");
-            apiResponse.setStatusCode(401);
-            apiResponse.setStatus(false);
-            return apiResponse;
-        }
+//        if (!checkAuth.checkAuthToCompany(userId, companyId)) {
+//            apiResponse.setMessage("Unauthorized");
+//            apiResponse.setStatusCode(401);
+//            apiResponse.setStatus(false);
+//            return apiResponse;
+//        }
 
         Branch branch = dtoToBranch(branchDTO);
 

@@ -36,6 +36,23 @@ public class CompanyService {
         this.companyDetailsRepository = companyDetailsRepository;
 
     }
+    public ApiResponse<CompanyDTO> getCompanyWithToken(String token) {
+        ApiResponse<CompanyDTO> response = new ApiResponse<>();
+        Long userId = jwtService.extractUserId(token);
+        User user = userRepository.findById(userId).orElseThrow(EntityNotFoundException::new);
+        Optional<CompanyDetails> companyDetails = companyDetailsRepository.findByUser(user);
+        if(companyDetails.isEmpty()) {
+            response.setStatusCode(404);
+            response.setMessage("Company not found");
+            response.setStatus(false);
+            return response;
+        }
+        Company company = companyDetails.get().getCompany();
+        response.setData(companyToDto(company));
+        response.setStatusCode(200);
+        response.setStatus(true);
+        return response;
+    }
 
     public ApiResponse<List<CompanyDTO>> getAllCompanies() {
         ApiResponse<List<CompanyDTO>> apiResponse = new ApiResponse<>();

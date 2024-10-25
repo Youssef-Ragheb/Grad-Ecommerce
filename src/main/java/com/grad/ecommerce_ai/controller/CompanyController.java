@@ -20,6 +20,11 @@ public class CompanyController {
         this.companyService = companyService;
     }
 
+    @GetMapping("get/id")
+    public ResponseEntity<ApiResponse<CompanyDTO>> getCompanyById(@RequestHeader String token) {
+       ApiResponse<CompanyDTO> response = companyService.getCompanyWithToken(token);
+        return ResponseEntity.status(response.getStatusCode()).body(response);
+    }
     @GetMapping("get/all")
     public ResponseEntity<ApiResponse<List<CompanyDTO>>> getAllPharmacies() {
         ApiResponse<List<CompanyDTO>> response = companyService.getAllCompanies();

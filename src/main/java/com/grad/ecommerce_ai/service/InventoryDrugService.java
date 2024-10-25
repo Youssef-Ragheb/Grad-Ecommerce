@@ -42,6 +42,7 @@ public class InventoryDrugService {
         }
         inventoryDrug.setActiveIngredientId(drug.get().getActiveIngredientId());
         inventoryDrug.setCategoryId(drug.get().getCategoryId());
+        inventoryDrug.setDrugName(drug.get().getDrugName());
         response.setStatus(true);
         response.setMessage("success");
         response.setStatusCode(200);
@@ -154,6 +155,7 @@ public class InventoryDrugService {
 
             // Update the fields of the existing inventory drug
             existingInventoryDrug.setDrugId(inventoryDrug.getDrugId());
+            existingInventoryDrug.setDrugName(drug.get().getDrugName());
             existingInventoryDrug.setCategoryId(drug.get().getCategoryId());
             existingInventoryDrug.setActiveIngredientId(drug.get().getActiveIngredientId());
             existingInventoryDrug.setPrice(inventoryDrug.getPrice());

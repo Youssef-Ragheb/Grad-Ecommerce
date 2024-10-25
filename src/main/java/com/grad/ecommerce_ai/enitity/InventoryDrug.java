@@ -15,6 +15,7 @@ public class InventoryDrug {
     @Id
     private String id;
     private String drugId;
+    private String drugName;
     private String categoryId;
     private String activeIngredientId;
     private float price;

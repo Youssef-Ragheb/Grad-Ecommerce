@@ -202,7 +202,7 @@ public class CompanyService {
             apiResponse.setStatus(false);
             return apiResponse;
         }
-        if (companyDetails.get().getCompany().getCompanyId().equals(companyId)) {
+        if (!companyDetails.get().getCompany().getCompanyId().equals(companyId)) {
             apiResponse.setStatusCode(401);
             apiResponse.setMessage("Unauthorized");
             apiResponse.setStatus(false);

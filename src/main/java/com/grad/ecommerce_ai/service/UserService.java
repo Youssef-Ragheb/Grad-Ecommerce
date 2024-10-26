@@ -18,6 +18,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -156,11 +157,22 @@ public class UserService {
         Company company = new Company();
         company.setCompanyEmail(userDTO.getCompanyEmail());
         company.setName(userDTO.getCompanyName());
+        if(companyRepository.existsByPhone(userDTO.getCompanyPhone())){
+            response.setStatus(false);
+            response.setMessage("Company already exists with phone number");
+            response.setData(null);
+            response.setStatusCode(500);
+            return response;
+        }
         company.setPhone(userDTO.getCompanyPhone());
         company.setLogoUrl(userDTO.getLogoUrl());
+        company.setBranchList(new ArrayList<>());
         CompanyDetails companyDetails = new CompanyDetails();
-        companyDetails.setCompany(companyRepository.save(company));
-        companyDetails.setUser(userRepository.save(user));
+        System.out.println(company);
+        Company savedCompany = companyRepository.save(company);
+        companyDetails.setCompany( savedCompany );
+        User savedUser = userRepository.save(user);
+        companyDetails.setUser(savedUser);
         companyDetailsRepository.save(companyDetails);
         response.setStatusCode(200);
         response.setData(userDTO);

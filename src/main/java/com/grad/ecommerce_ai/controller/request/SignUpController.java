@@ -23,7 +23,7 @@ public class SignUpController {
         return ResponseEntity.status(response.getStatusCode()).body(response);
     }
     @PostMapping("/company")
-    public ResponseEntity<ApiResponse<UserCompanyDTO>> signUpForCompany(@RequestBody @Valid UserCompanyDTO userDTO) {
+    public ResponseEntity<ApiResponse<UserCompanyDTO>> signUpForCompany(@RequestBody UserCompanyDTO userDTO) {
         ApiResponse<UserCompanyDTO> response = userService.createCompanyAccount(userDTO);
         return ResponseEntity.status(response.getStatusCode()).body(response);
     }

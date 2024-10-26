@@ -15,5 +15,5 @@ public interface CompanyRepository extends JpaRepository<Company, Long> {
     //Boolean existsByPhone(String phone);
     @Query("SELECT c FROM Company c WHERE c.name = :name OR c.companyEmail = :email OR c.phone = :phone")
     Optional<Company> findByNameOrEmailOrPhone(@Param("name") String name, @Param("email") String email, @Param("phone") String phone);
-
+    Boolean existsByPhone(String phone);
 }

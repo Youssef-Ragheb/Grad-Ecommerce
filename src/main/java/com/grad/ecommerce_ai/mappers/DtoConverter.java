@@ -36,7 +36,6 @@ public class DtoConverter {
 
     public static BranchDTO branchToDto(Branch branch) {
         BranchDTO dto = new BranchDTO();
-
         dto.setBranchId(branch.getBranchId());
         dto.setBranchName(branch.getBranchName());
         dto.setAddress(branch.getAddress());
@@ -47,7 +46,9 @@ public class DtoConverter {
         dto.setZip(branch.getZip());
         dto.setLat(branch.getLat());
         dto.setLng(branch.getLng());
-
+        if(branch.getCompany()!= null){
+            dto.setCompanyLogoURl(branch.getCompany().getLogoUrl());
+        }
         return dto;
     }
 

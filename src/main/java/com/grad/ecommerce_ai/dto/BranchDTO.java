@@ -1,7 +1,7 @@
 package com.grad.ecommerce_ai.dto;
 
-
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 @Data
 public class BranchDTO {
@@ -26,5 +26,8 @@ public class BranchDTO {
 
     private double lng;
     private CompanyDTO companyDto;
+    private float price;
+    @Size(max = 1080)
+    private String CompanyLogoURl;
 
 }

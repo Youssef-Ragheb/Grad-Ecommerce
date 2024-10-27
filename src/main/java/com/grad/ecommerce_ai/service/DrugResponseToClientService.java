@@ -48,7 +48,9 @@ public class DrugResponseToClientService {
         List<BranchDTO> branchDTOS = new ArrayList<>();
         for (InventoryDrug inventoryDrug : inventoryDrugList) {
             if (inventoryDrug.getStock() > 0) {
-                branchDTOS.add(branchToDto(branchRepository.findById(inventoryDrug.getBranchId()).get()));
+                BranchDTO branchDTO =branchToDto(branchRepository.findById(inventoryDrug.getBranchId()).get());
+                branchDTO.setPrice(inventoryDrug.getPrice());
+                branchDTOS.add(branchDTO);
             }
         }
         response.setData(branchDTOS);

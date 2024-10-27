@@ -101,9 +101,11 @@ public class DrugResponseToClientService {
             int inventoryDrugListSize = inventoryDrugList.size();
             float averageTotalPrice = 0;
 
-            for (int j = 0; j < inventoryDrugListSize; j++) {
+            for (int j = 0; j < inventoryDrugListSize; j++) {//loop 3li al adwya bta3t branches b3d ma at3ml filter
                 if (inventoryDrugList.get(j).getStock() > 0) {
                     isAvailable = true;
+                }else{
+                    isAvailable = false;
                 }
                 averageTotalPrice += inventoryDrugList.get(j).getPrice();
             }

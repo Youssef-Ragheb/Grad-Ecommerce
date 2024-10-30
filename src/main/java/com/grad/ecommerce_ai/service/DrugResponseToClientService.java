@@ -111,7 +111,7 @@ public class DrugResponseToClientService {
             List<DrugResponseDto> drugResponseList, List<Drugs> drugsList) {
         List<String> drugIds = drugsList.stream().map(Drugs::getId).collect(Collectors.toList());
 
-        List<InventoryDrug> allInventoryDrugs = inventoryDrugRepository.findAllByIdIn(drugIds);
+        List<InventoryDrug> allInventoryDrugs = inventoryDrugRepository.findAllByDrugIdIn(drugIds);
         Map<String, List<InventoryDrug>> inventoryByDrugId = allInventoryDrugs.stream()
                 .collect(Collectors.groupingBy(InventoryDrug::getDrugId));
         for (Drugs drugEntity : drugsList) {

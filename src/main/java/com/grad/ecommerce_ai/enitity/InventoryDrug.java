@@ -14,6 +14,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class InventoryDrug {
     @Id
     private String id;
+    @Indexed
     private String drugId;
     private String drugName;
     private String categoryId;

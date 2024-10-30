@@ -78,7 +78,7 @@ public class CheckAuth {
             Optional<AdminDetails> admin  = adminDetailsRepository.findByUser(userEntity);
             return admin.isPresent();
 
-        } else if (userEntity.getUserRoles().equals(ROLE_COMPANY)) {
+        } else {
             Optional<CompanyDetails> companyDetails = companyDetailsRepository.findByUser(userEntity);
             if(companyDetails.isPresent()) {
                 Company company = companyDetails.get().getCompany();
@@ -86,6 +86,6 @@ public class CheckAuth {
             }
             return false;
 
-        } return false;
+        }
     }
 }

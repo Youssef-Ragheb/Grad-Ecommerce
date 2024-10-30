@@ -14,6 +14,7 @@ public class Drugs {
     private String activeIngredientId;
     @Indexed
     private String categoryId;
+    @Indexed
     private String drugName;
     private String description;
     @Size(max = 1080)

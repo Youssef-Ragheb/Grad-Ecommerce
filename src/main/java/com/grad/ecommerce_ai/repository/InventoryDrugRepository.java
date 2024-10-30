@@ -12,4 +12,5 @@ List<InventoryDrug> findAllByBranchId(Long id);
 void deleteAllByBranchId(Long id);
 Optional<InventoryDrug> findByDrugIdAndBranchId(String id, Long branchId);
 List<InventoryDrug> findAllByDrugId(String id);
+List<InventoryDrug> findAllByIdIn(List<String> ids);
 }

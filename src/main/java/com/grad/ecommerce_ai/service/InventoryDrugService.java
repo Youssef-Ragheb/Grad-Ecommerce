@@ -145,7 +145,7 @@ public class InventoryDrugService {
                 response.setStatusCode(401);
                 return response;
             }
-            Optional<Drugs> drug = mainDrugRepository.findById(inventoryDrug.getDrugId());
+            Optional<Drugs> drug = mainDrugRepository.findById(existingInventoryDrug.getDrugId());
             if(drug.isEmpty()){
                 response.setStatus(false);
                 response.setStatusCode(404);

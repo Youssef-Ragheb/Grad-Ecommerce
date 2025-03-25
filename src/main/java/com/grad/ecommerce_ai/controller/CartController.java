@@ -1,8 +1,8 @@
 package com.grad.ecommerce_ai.controller;
 
 import com.grad.ecommerce_ai.dto.ApiResponse;
-import com.grad.ecommerce_ai.enitity.Cart;
-import com.grad.ecommerce_ai.enitity.Item;
+import com.grad.ecommerce_ai.entity.Cart;
+import com.grad.ecommerce_ai.entity.Item;
 import com.grad.ecommerce_ai.service.CartService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

@@ -1,4 +1,4 @@
-package com.grad.ecommerce_ai.enitity;
+package com.grad.ecommerce_ai.entity;
 
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
@@ -14,8 +14,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Wishlist {
     @Id
     private String id;
-    private String drugId;  // Relates to drug in MongoDB
+    private String drugId;
     @Indexed
-    private Long userId;  // Relates to MySQL user
+    private Long userId;
 }
 

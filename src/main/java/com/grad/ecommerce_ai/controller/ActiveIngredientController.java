@@ -1,7 +1,7 @@
 package com.grad.ecommerce_ai.controller;
 
 import com.grad.ecommerce_ai.dto.ApiResponse;
-import com.grad.ecommerce_ai.enitity.ActiveIngredient;
+import com.grad.ecommerce_ai.entity.ActiveIngredient;
 import com.grad.ecommerce_ai.service.ActiveIngredientService;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;

@@ -1,7 +1,7 @@
 package com.grad.ecommerce_ai.controller;
 
 import com.grad.ecommerce_ai.dto.ApiResponse;
-import com.grad.ecommerce_ai.enitity.Wishlist;
+import com.grad.ecommerce_ai.entity.Wishlist;
 import com.grad.ecommerce_ai.service.WishlistService;
 import org.springframework.web.bind.annotation.*;
 

@@ -4,5 +4,33 @@ TODO create template for products view
 TODO create template for one product view with more details
 TODO test all apis and start working on RBAC
 TODO edit place an order and removing items from stock
+Cart :
+    private String id;*
+    private List<Item> items;*
+    private Long userId;*
+Item :
+    private String id;*
+    private String orderId;
+    @NotNull
+    private String drugId;*
+    @NotNull
+    private Long branchId;
+    private float price;*
+    @NotNull
+    private int quantity;*
+    private Long userId;*
+Order :
+    private String id;*
+    private float totalPrice;*
+    private String paymentMethod;*
+    private String status;*
+    private Long userId;*
+Request :
+    private String id;*
+    private drugId;
+    private quantity;
+    private branchId;*
+    private orderId*
+
 
 

@@ -1,7 +1,7 @@
 //package com.grad.ecommerce_ai.mappers;
 //
 //import com.grad.ecommerce_ai.dto.ActiveIngredientDto;
-//import com.grad.ecommerce_ai.enitity.ActiveIngredient;
+//import com.grad.ecommerce_ai.entity.ActiveIngredient;
 //
 //import java.util.List;
 //import java.util.stream.Collectors;

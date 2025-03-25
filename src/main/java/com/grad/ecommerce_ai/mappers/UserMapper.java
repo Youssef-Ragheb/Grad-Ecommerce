@@ -1,7 +1,7 @@
 package com.grad.ecommerce_ai.mappers;
 
 import com.grad.ecommerce_ai.dto.UserDTO;
-import com.grad.ecommerce_ai.enitity.User;
+import com.grad.ecommerce_ai.entity.User;
 
 public class UserMapper {
 

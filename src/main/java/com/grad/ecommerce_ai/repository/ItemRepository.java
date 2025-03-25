@@ -1,6 +1,6 @@
 package com.grad.ecommerce_ai.repository;
 
-import com.grad.ecommerce_ai.enitity.Item;
+import com.grad.ecommerce_ai.entity.Item;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 

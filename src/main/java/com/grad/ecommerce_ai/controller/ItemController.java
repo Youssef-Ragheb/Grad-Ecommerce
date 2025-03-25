@@ -1,7 +1,7 @@
 package com.grad.ecommerce_ai.controller;
 
 import com.grad.ecommerce_ai.dto.ApiResponse;
-import com.grad.ecommerce_ai.enitity.Item;
+import com.grad.ecommerce_ai.entity.Item;
 import com.grad.ecommerce_ai.service.ItemService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;

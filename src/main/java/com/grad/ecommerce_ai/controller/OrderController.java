@@ -1,7 +1,8 @@
 package com.grad.ecommerce_ai.controller;
 
 import com.grad.ecommerce_ai.dto.ApiResponse;
-import com.grad.ecommerce_ai.enitity.Order;
+import com.grad.ecommerce_ai.entity.Cart;
+import com.grad.ecommerce_ai.entity.Order;
 import com.grad.ecommerce_ai.service.OrderService;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,7 +29,13 @@ public class OrderController {
     }
 
     @GetMapping("/user")
-    public ApiResponse<List<Order>> getUserOrders(@RequestHeader("Authorization") String token) {
+    public ApiResponse<List<Order>> getUserOrders(@RequestHeader String token) {
         return orderService.getUserOrders(token);
+    }
+    @PostMapping("/place/order")
+    public ApiResponse<Order> placeOrder(@RequestBody Order order
+            , @RequestHeader String token) {
+
+        return orderService.createOrder(order, token);
     }
 }

@@ -1,7 +1,7 @@
 package com.grad.ecommerce_ai.controller;
 
 import com.grad.ecommerce_ai.dto.ApiResponse;
-import com.grad.ecommerce_ai.enitity.InventoryDrug;
+import com.grad.ecommerce_ai.entity.InventoryDrug;
 import com.grad.ecommerce_ai.service.InventoryDrugService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

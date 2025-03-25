@@ -2,13 +2,12 @@ package com.grad.ecommerce_ai.service;
 
 import com.grad.ecommerce_ai.dto.ApiResponse;
 import com.grad.ecommerce_ai.dto.InventoryDrugDTO;
-import com.grad.ecommerce_ai.enitity.Branch;
-import com.grad.ecommerce_ai.enitity.Drugs;
-import com.grad.ecommerce_ai.enitity.InventoryDrug;
+import com.grad.ecommerce_ai.entity.Branch;
+import com.grad.ecommerce_ai.entity.Drugs;
+import com.grad.ecommerce_ai.entity.InventoryDrug;
 import com.grad.ecommerce_ai.repository.BranchRepository;
 import com.grad.ecommerce_ai.repository.InventoryDrugRepository;
 import com.grad.ecommerce_ai.repository.MainDrugRepository;
-import com.grad.ecommerce_ai.repository.UserRepository;
 import com.grad.ecommerce_ai.utils.CheckAuth;
 import org.springframework.stereotype.Service;
 

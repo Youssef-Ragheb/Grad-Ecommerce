@@ -1,6 +1,6 @@
-package com.grad.ecommerce_ai.enitity.details;
+package com.grad.ecommerce_ai.entity.details;
 
-import com.grad.ecommerce_ai.enitity.User;
+import com.grad.ecommerce_ai.entity.User;
 import jakarta.persistence.*;
 import lombok.Data;
 

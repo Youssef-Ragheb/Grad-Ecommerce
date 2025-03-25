@@ -1,15 +1,21 @@
-package com.grad.ecommerce_ai.enitity;
+package com.grad.ecommerce_ai.entity;
 
 import lombok.Data;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.util.List;
+
 @Data
 @Document(collection = "orders")
 public class Order {
     @Id
-    private String id;                // Updated to long type
+    private String id;
     private float totalPrice;
     private String paymentMethod;
-    private String status;
-    private Long userId;            // User ID to reference the MySQL User
+    private Status status;
+    private Long userId;
+    @Indexed
+    private List<String> requestsIds;
 }

@@ -1,7 +1,7 @@
 package com.grad.ecommerce_ai.mappers;
 
 import com.grad.ecommerce_ai.dto.InventoryDrugDTO;
-import com.grad.ecommerce_ai.enitity.InventoryDrug;
+import com.grad.ecommerce_ai.entity.InventoryDrug;
 
 
 public class InventoryDrugMapper {

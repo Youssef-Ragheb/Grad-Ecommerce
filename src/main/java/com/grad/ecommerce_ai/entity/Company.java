@@ -1,4 +1,4 @@
-package com.grad.ecommerce_ai.enitity;
+package com.grad.ecommerce_ai.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;

@@ -1,7 +1,7 @@
 package com.grad.ecommerce_ai.service;
 
 import com.grad.ecommerce_ai.dto.ApiResponse;
-import com.grad.ecommerce_ai.enitity.Category;
+import com.grad.ecommerce_ai.entity.Category;
 import com.grad.ecommerce_ai.repository.CategoryRepository;
 import org.springframework.stereotype.Service;
 

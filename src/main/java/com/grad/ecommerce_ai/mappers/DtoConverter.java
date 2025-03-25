@@ -2,8 +2,8 @@ package com.grad.ecommerce_ai.mappers;
 
 import com.grad.ecommerce_ai.dto.BranchDTO;
 import com.grad.ecommerce_ai.dto.CompanyDTO;
-import com.grad.ecommerce_ai.enitity.Branch;
-import com.grad.ecommerce_ai.enitity.Company;
+import com.grad.ecommerce_ai.entity.Branch;
+import com.grad.ecommerce_ai.entity.Company;
 
 import java.util.List;
 import java.util.stream.Collectors;

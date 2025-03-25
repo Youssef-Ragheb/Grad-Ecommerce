@@ -3,7 +3,7 @@ package com.grad.ecommerce_ai.controller;
 import com.grad.ecommerce_ai.dto.ApiResponse;
 import com.grad.ecommerce_ai.dto.BranchDTO;
 import com.grad.ecommerce_ai.dto.CompanyDTO;
-import com.grad.ecommerce_ai.enitity.Company;
+import com.grad.ecommerce_ai.entity.Company;
 import com.grad.ecommerce_ai.service.CompanyService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

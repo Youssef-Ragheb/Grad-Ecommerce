@@ -1,6 +1,6 @@
 package com.grad.ecommerce_ai.repository;
 
-import com.grad.ecommerce_ai.enitity.Wishlist;
+import com.grad.ecommerce_ai.entity.Wishlist;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.grad.ecommerce_ai.enitity;
+package com.grad.ecommerce_ai.entity;
 
 import jakarta.persistence.Id;
 import lombok.Data;

@@ -1,4 +1,4 @@
-package com.grad.ecommerce_ai.enitity;
+package com.grad.ecommerce_ai.entity;
 
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotNull;
@@ -17,12 +17,12 @@ public class Item {
     private String id;
     @Indexed
     private String orderId;
-    @NotNull// Optional, can link to Order (in MongoDB or MySQL)
+    @NotNull
     private String drugId;
-    @NotNull// Relates to drug in MongoDB
-    private Long branchId;// Relates to branch in MySQL
+
     private float price;
     @NotNull
     private int quantity;
+    @Indexed
     private Long userId;
 }

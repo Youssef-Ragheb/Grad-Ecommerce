@@ -1,7 +1,7 @@
 package com.grad.ecommerce_ai.service;
 
-import com.grad.ecommerce_ai.enitity.User;
-import com.grad.ecommerce_ai.enitity.details.UserPrincipal;
+import com.grad.ecommerce_ai.entity.User;
+import com.grad.ecommerce_ai.entity.details.UserPrincipal;
 import com.grad.ecommerce_ai.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

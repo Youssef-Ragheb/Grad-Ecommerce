@@ -4,10 +4,10 @@ import com.grad.ecommerce_ai.dto.ApiResponse;
 import com.grad.ecommerce_ai.dto.BranchDTO;
 import com.grad.ecommerce_ai.dto.DrugResponseDetailsDto;
 import com.grad.ecommerce_ai.dto.DrugResponseDto;
-import com.grad.ecommerce_ai.enitity.ActiveIngredient;
-import com.grad.ecommerce_ai.enitity.Branch;
-import com.grad.ecommerce_ai.enitity.Drugs;
-import com.grad.ecommerce_ai.enitity.InventoryDrug;
+import com.grad.ecommerce_ai.entity.ActiveIngredient;
+import com.grad.ecommerce_ai.entity.Branch;
+import com.grad.ecommerce_ai.entity.Drugs;
+import com.grad.ecommerce_ai.entity.InventoryDrug;
 import com.grad.ecommerce_ai.repository.*;
 import org.springframework.stereotype.Service;
 
@@ -75,7 +75,13 @@ public class DrugResponseToClientService {
                 }
             }
         }
-
+        if(branchDTOS.isEmpty()){
+            response.setData(null);
+            response.setStatusCode(404);
+            response.setStatus(false);
+            response.setMessage("drug not found in any branch");
+            return response;
+        }
         // Prepare the response
         response.setData(branchDTOS);
         response.setMessage("Branches that have the drug");

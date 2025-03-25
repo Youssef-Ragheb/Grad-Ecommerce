@@ -1,7 +1,7 @@
 package com.grad.ecommerce_ai.controller;
 
 import com.grad.ecommerce_ai.dto.ApiResponse;
-import com.grad.ecommerce_ai.enitity.LogHistory;
+import com.grad.ecommerce_ai.entity.LogHistory;
 import com.grad.ecommerce_ai.service.JwtService;
 import com.grad.ecommerce_ai.service.LogHistoryService;
 import org.springframework.web.bind.annotation.*;

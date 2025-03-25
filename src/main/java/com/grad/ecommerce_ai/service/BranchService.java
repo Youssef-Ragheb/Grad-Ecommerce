@@ -2,9 +2,9 @@ package com.grad.ecommerce_ai.service;
 
 import com.grad.ecommerce_ai.dto.ApiResponse;
 import com.grad.ecommerce_ai.dto.BranchDTO;
-import com.grad.ecommerce_ai.enitity.Branch;
-import com.grad.ecommerce_ai.enitity.Company;
-import com.grad.ecommerce_ai.enitity.InventoryDrug;
+import com.grad.ecommerce_ai.entity.Branch;
+import com.grad.ecommerce_ai.entity.Company;
+import com.grad.ecommerce_ai.entity.InventoryDrug;
 import com.grad.ecommerce_ai.repository.BranchRepository;
 import com.grad.ecommerce_ai.repository.CompanyRepository;
 import com.grad.ecommerce_ai.repository.InventoryDrugRepository;

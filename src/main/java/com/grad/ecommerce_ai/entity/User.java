@@ -1,6 +1,5 @@
-package com.grad.ecommerce_ai.enitity;
+package com.grad.ecommerce_ai.entity;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -9,7 +8,6 @@ import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.OffsetDateTime;
-import java.util.Date;
 
 @Data
 @Entity

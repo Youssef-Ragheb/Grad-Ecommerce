@@ -1,7 +1,7 @@
 package com.grad.ecommerce_ai.service;
 
 import com.grad.ecommerce_ai.dto.ApiResponse;
-import com.grad.ecommerce_ai.enitity.details.CompanyDetails;
+import com.grad.ecommerce_ai.entity.details.CompanyDetails;
 import com.grad.ecommerce_ai.repository.CompanyDetailsRepository;
 import org.springframework.stereotype.Service;
 

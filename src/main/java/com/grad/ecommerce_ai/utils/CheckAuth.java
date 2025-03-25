@@ -1,17 +1,17 @@
 package com.grad.ecommerce_ai.utils;
 
-import com.grad.ecommerce_ai.enitity.Branch;
-import com.grad.ecommerce_ai.enitity.Company;
-import com.grad.ecommerce_ai.enitity.User;
-import com.grad.ecommerce_ai.enitity.details.AdminDetails;
-import com.grad.ecommerce_ai.enitity.details.CompanyDetails;
-import com.grad.ecommerce_ai.enitity.details.EmployeeDetails;
+import com.grad.ecommerce_ai.entity.Branch;
+import com.grad.ecommerce_ai.entity.Company;
+import com.grad.ecommerce_ai.entity.User;
+import com.grad.ecommerce_ai.entity.details.AdminDetails;
+import com.grad.ecommerce_ai.entity.details.CompanyDetails;
+import com.grad.ecommerce_ai.entity.details.EmployeeDetails;
 import com.grad.ecommerce_ai.repository.*;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-import static com.grad.ecommerce_ai.enitity.UserRoles.*;
+import static com.grad.ecommerce_ai.entity.UserRoles.*;
 
 @Service
 public class CheckAuth {

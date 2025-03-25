@@ -1,9 +1,9 @@
 package com.grad.ecommerce_ai.service;
 
 import com.grad.ecommerce_ai.dto.ApiResponse;
-import com.grad.ecommerce_ai.enitity.User;
-import com.grad.ecommerce_ai.enitity.UserRoles;
-import com.grad.ecommerce_ai.enitity.Wishlist;
+import com.grad.ecommerce_ai.entity.User;
+import com.grad.ecommerce_ai.entity.UserRoles;
+import com.grad.ecommerce_ai.entity.Wishlist;
 import com.grad.ecommerce_ai.repository.MainDrugRepository;
 import com.grad.ecommerce_ai.repository.UserRepository;
 import com.grad.ecommerce_ai.repository.WishlistRepository;

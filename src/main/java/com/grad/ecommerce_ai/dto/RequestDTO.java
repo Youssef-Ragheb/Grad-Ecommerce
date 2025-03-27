@@ -1,5 +1,6 @@
 package com.grad.ecommerce_ai.dto;
 
+import com.grad.ecommerce_ai.entity.Status;
 import lombok.Data;
 
 import java.util.List;
@@ -10,5 +11,6 @@ public class RequestDTO {
     private List<ItemDTO> items;
     private Long branchId;
     private String orderId;
+    private Status status;
     private CustomerInfoDTO customer;
 }

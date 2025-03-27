@@ -7,35 +7,46 @@ import com.grad.ecommerce_ai.dto.*;
 import com.grad.ecommerce_ai.entity.*;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Component
 public class CheckoutMapper {
 
     // Request Mappings
-    public RequestDTO toRequestDTO(Request request, User customer) {
+    public static RequestDTO toRequestDTO(Request request, User customer) {
         RequestDTO dto = new RequestDTO();
-        dto.setItems(request.getItems().stream()
-                .map(this::toItemDTO)
-                .toList());
+        List<ItemDTO> list = new ArrayList<>();
+        for (Item item : request.getItems()) {
+            ItemDTO itemDTO = toItemDTO(item);
+            list.add(itemDTO);
+        }
+        dto.setItems(list);
         dto.setBranchId(request.getBranchId());
         dto.setOrderId(request.getOrderId());
+        dto.setStatus(request.getStatus());
         dto.setCustomer(toCustomerInfoDTO(customer));
         dto.setId(request.getRequestId());
         return dto;
     }
 
-    public Request toRequestEntity(RequestDTO dto) {
+    public static Request toRequestEntity(RequestDTO dto) {
         Request request = new Request();
-        request.setItems(dto.getItems().stream()
-                .map(this::toItemEntity)
-                .toList());
+        List<Item> list = new ArrayList<>();
+        for (ItemDTO itemDTO : dto.getItems()) {
+            Item itemEntity = toItemEntity(itemDTO);
+            list.add(itemEntity);
+        }
+        request.setItems(list);
         request.setBranchId(dto.getBranchId());
         request.setOrderId(dto.getOrderId());
+        request.setStatus(dto.getStatus());
         request.setRequestId(dto.getId());
         return request;
     }
 
     // Item Mappings
-    public ItemDTO toItemDTO(Item item) {
+    public static ItemDTO toItemDTO(Item item) {
         ItemDTO dto = new ItemDTO();
         dto.setId(item.getId());
         dto.setOrderId(item.getOrderId());
@@ -45,7 +56,7 @@ public class CheckoutMapper {
         return dto;
     }
 
-    public Item toItemEntity(ItemDTO dto) {
+    public static Item toItemEntity(ItemDTO dto) {
         Item item = new Item();
         item.setId(dto.getId());
         item.setOrderId(dto.getOrderId());
@@ -56,7 +67,7 @@ public class CheckoutMapper {
     }
 
     // Customer Mappings
-    public CustomerInfoDTO toCustomerInfoDTO(User user) {
+    public static CustomerInfoDTO toCustomerInfoDTO(User user) {
         CustomerInfoDTO dto = new CustomerInfoDTO();
         dto.setFirstName(user.getFirstName());
         dto.setLastName(user.getLastName());
@@ -66,7 +77,7 @@ public class CheckoutMapper {
         return dto;
     }
 
-    public void updateUserFromDTO(CustomerInfoDTO dto, User user) {
+    public static void updateUserFromDTO(CustomerInfoDTO dto, User user) {
         user.setFirstName(dto.getFirstName());
         user.setLastName(dto.getLastName());
         user.setPhone(dto.getPhone());

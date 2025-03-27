@@ -89,7 +89,7 @@ public class OrderService {
 
         return response;
     }
-    private void completeOrder(List<Request> requests, Cart cart) {
+    private void completeOrder (List<Request> requests, Cart cart) {
 
         for(Request request : requests){
 

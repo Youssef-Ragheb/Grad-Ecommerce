@@ -5,7 +5,7 @@ import com.grad.ecommerce_ai.dto.ApiResponse;
 import com.grad.ecommerce_ai.dto.RequestDTO;
 import com.grad.ecommerce_ai.entity.Item;
 import com.grad.ecommerce_ai.entity.Request;
-import com.grad.ecommerce_ai.entity.Status;
+import com.grad.ecommerce_ai.dto.enums.Status;
 import com.grad.ecommerce_ai.entity.User;
 import com.grad.ecommerce_ai.entity.details.EmployeeDetails;
 import com.grad.ecommerce_ai.repository.EmployeeDetailsRepository;

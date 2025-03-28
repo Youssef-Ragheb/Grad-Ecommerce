@@ -1,4 +1,4 @@
-package com.grad.ecommerce_ai.entity;
+package com.grad.ecommerce_ai.dto.enums;
 
 public enum UserRoles
 {

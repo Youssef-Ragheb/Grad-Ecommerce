@@ -11,7 +11,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import static com.grad.ecommerce_ai.entity.UserRoles.ROLE_COMPANY;
+import static com.grad.ecommerce_ai.dto.enums.UserRoles.ROLE_COMPANY;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController

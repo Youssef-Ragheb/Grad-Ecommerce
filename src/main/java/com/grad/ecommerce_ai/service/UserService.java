@@ -7,7 +7,7 @@ import com.grad.ecommerce_ai.dto.UserDTO;
 import com.grad.ecommerce_ai.entity.Branch;
 import com.grad.ecommerce_ai.entity.Company;
 import com.grad.ecommerce_ai.entity.User;
-import com.grad.ecommerce_ai.entity.UserRoles;
+import com.grad.ecommerce_ai.dto.enums.UserRoles;
 import com.grad.ecommerce_ai.entity.details.AdminDetails;
 import com.grad.ecommerce_ai.entity.details.CompanyDetails;
 import com.grad.ecommerce_ai.entity.details.EmployeeDetails;

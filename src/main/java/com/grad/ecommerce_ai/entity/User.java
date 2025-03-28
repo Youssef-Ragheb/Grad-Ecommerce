@@ -1,5 +1,7 @@
 package com.grad.ecommerce_ai.entity;
 
+import com.grad.ecommerce_ai.dto.enums.Gender;
+import com.grad.ecommerce_ai.dto.enums.UserRoles;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

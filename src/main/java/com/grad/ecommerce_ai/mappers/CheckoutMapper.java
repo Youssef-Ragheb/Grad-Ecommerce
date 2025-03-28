@@ -49,7 +49,6 @@ public class CheckoutMapper {
     public static ItemDTO toItemDTO(Item item) {
         ItemDTO dto = new ItemDTO();
         dto.setId(item.getId());
-        dto.setOrderId(item.getOrderId());
         dto.setDrugId(item.getDrugId());
         dto.setPrice(item.getPrice());
         dto.setQuantity(item.getQuantity());
@@ -59,7 +58,6 @@ public class CheckoutMapper {
     public static Item toItemEntity(ItemDTO dto) {
         Item item = new Item();
         item.setId(dto.getId());
-        item.setOrderId(dto.getOrderId());
         item.setDrugId(dto.getDrugId());
         item.setPrice(dto.getPrice());
         item.setQuantity(dto.getQuantity());

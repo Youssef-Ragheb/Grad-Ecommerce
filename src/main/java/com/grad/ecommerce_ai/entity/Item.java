@@ -15,8 +15,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Item {
     @Id
     private String id;
-    @Indexed
-    private String orderId;
     @NotNull
     private String drugId;
 

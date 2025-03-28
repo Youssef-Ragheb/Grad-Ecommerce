@@ -1,7 +1,7 @@
 package com.grad.ecommerce_ai.dto;
 
-import com.grad.ecommerce_ai.entity.Gender;
-import com.grad.ecommerce_ai.entity.UserRoles;
+import com.grad.ecommerce_ai.dto.enums.Gender;
+import com.grad.ecommerce_ai.dto.enums.UserRoles;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;

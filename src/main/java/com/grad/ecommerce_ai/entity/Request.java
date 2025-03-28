@@ -1,5 +1,6 @@
 package com.grad.ecommerce_ai.entity;
 
+import com.grad.ecommerce_ai.dto.enums.Status;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;

@@ -1,6 +1,6 @@
 package com.grad.ecommerce_ai.dto;
 
-import com.grad.ecommerce_ai.entity.Status;
+import com.grad.ecommerce_ai.dto.enums.Status;
 import lombok.Data;
 
 import java.util.List;

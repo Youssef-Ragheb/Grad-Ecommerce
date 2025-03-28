@@ -2,7 +2,7 @@ package com.grad.ecommerce_ai.service;
 
 
 import com.grad.ecommerce_ai.entity.User;
-import com.grad.ecommerce_ai.entity.UserRoles;
+import com.grad.ecommerce_ai.dto.enums.UserRoles;
 import com.grad.ecommerce_ai.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

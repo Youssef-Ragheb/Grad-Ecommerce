@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-import static com.grad.ecommerce_ai.entity.UserRoles.*;
+import static com.grad.ecommerce_ai.dto.enums.UserRoles.*;
 
 @Service
 public class CheckAuth {

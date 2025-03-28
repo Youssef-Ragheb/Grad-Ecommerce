@@ -1,7 +1,7 @@
 package com.grad.ecommerce_ai.entity.details;
 
 import com.grad.ecommerce_ai.entity.User;
-import com.grad.ecommerce_ai.entity.UserRoles;
+import com.grad.ecommerce_ai.dto.enums.UserRoles;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

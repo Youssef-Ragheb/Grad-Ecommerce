@@ -1,21 +1,28 @@
 package com.grad.ecommerce_ai.entity;
 
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@Document(collection = "wishlist")
+@Entity
+@Table(
+        name = "wishlist",
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"user_id", "drug_id"})} // Prevent duplicates
+)
 public class Wishlist {
     @Id
-    private String id;
-    private String drugId;
-    @Indexed
-    private Long userId;
-}
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
+    @ManyToOne
+    @JoinColumn(name = "drug_id", nullable = false)
+    private Drugs drug;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+}

@@ -1,19 +1,25 @@
 package com.grad.ecommerce_ai.entity;
 
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@Document(collection = "category")
+@Entity
+@Table(name = "categories")
 public class Category {
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     private String categoryName;
     private String logo;
 
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Drugs> drugs;
 }

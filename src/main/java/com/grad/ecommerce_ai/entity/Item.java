@@ -1,26 +1,37 @@
 package com.grad.ecommerce_ai.entity;
 
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@Document(collection = "item")
+@Entity
+@Table(name = "items")
 public class Item {
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     @NotNull
-    private String drugId;
+    @ManyToOne
+    @JoinColumn(name = "drug_id", nullable = false)
+    private Drugs drug;
 
     private float price;
+
     @NotNull
     private int quantity;
-    @Indexed
-    private Long userId;
+
+    @ManyToOne
+    @JoinColumn(name = "request_id", nullable = false)
+    private Request request; // Added request relation
+
+    @ManyToOne
+    @JoinColumn(name = "cart_id")
+    private Cart cart;
+
 }

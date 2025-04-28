@@ -1,6 +1,6 @@
 //package com.grad.ecommerce_ai.mappers;
 //
-//import com.grad.ecommerce_ai.dto.ActiveIngredientDto;
+//import com.grad.ecommerce_ai.dto.ActiveIngredientDTO;
 //import com.grad.ecommerce_ai.entity.ActiveIngredient;
 //
 //import java.util.List;
@@ -8,7 +8,7 @@
 //
 //public class ActiveIngredientMapper {
 //
-//    public static ActiveIngredient dtoToActiveIngredient(ActiveIngredientDto dto) {
+//    public static ActiveIngredient dtoToActiveIngredient(ActiveIngredientDTO dto) {
 //        if (dto == null) {
 //            return null;
 //        }
@@ -24,12 +24,12 @@
 //    }
 //
 //
-//    public static ActiveIngredientDto activeIngredientToDto(ActiveIngredient ingredient) {
+//    public static ActiveIngredientDTO activeIngredientToDto(ActiveIngredient ingredient) {
 //        if (ingredient == null) {
 //            return null;
 //        }
 //
-//        ActiveIngredientDto dto = new ActiveIngredientDto();
+//        ActiveIngredientDTO dto = new ActiveIngredientDTO();
 //
 //        dto.setId(ingredient.getId());
 //        dto.setActiveIngredient(ingredient.getActiveIngredient());
@@ -40,12 +40,12 @@
 //    }
 //
 //
-//    public static List<ActiveIngredient> dtoListToActiveIngredientList(List<ActiveIngredientDto> dtoList) {
+//    public static List<ActiveIngredient> dtoListToActiveIngredientList(List<ActiveIngredientDTO> dtoList) {
 //        return dtoList.stream().map(ActiveIngredientMapper::dtoToActiveIngredient).collect(Collectors.toList());
 //    }
 //
 //
-//    public static List<ActiveIngredientDto> activeIngredientListToDtoList(List<ActiveIngredient> ingredientList) {
+//    public static List<ActiveIngredientDTO> activeIngredientListToDtoList(List<ActiveIngredient> ingredientList) {
 //        return ingredientList.stream().map(ActiveIngredientMapper::activeIngredientToDto).collect(Collectors.toList());
 //    }
 //}

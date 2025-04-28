@@ -5,6 +5,7 @@ import com.grad.ecommerce_ai.dto.BranchDTO;
 import com.grad.ecommerce_ai.entity.Branch;
 import com.grad.ecommerce_ai.entity.Company;
 import com.grad.ecommerce_ai.entity.InventoryDrug;
+import com.grad.ecommerce_ai.mappers.DtoConverter;
 import com.grad.ecommerce_ai.repository.BranchRepository;
 import com.grad.ecommerce_ai.repository.CompanyRepository;
 import com.grad.ecommerce_ai.repository.InventoryDrugRepository;
@@ -64,7 +65,7 @@ public class BranchService {
     private boolean checkBranchName(String branchName, Company company) {
         List<Branch> branches = company.getBranchList();
         for (Branch branch : branches) {
-            if(branch.getBranchName().equals(branchName)) {
+            if (branch.getBranchName().equals(branchName)) {
                 return true;
             }
         }
@@ -90,12 +91,12 @@ public class BranchService {
 //            return apiResponse;
 //        }
 
-        Branch branch = dtoToBranch(branchDTO);
+        Branch branch = DtoConverter.branchDTOToBranch(branchDTO);
 
         branch.setCompany(optionalCompany.get());
 
         // Check if a branch with the same name exists within the same company
-        if(checkBranchName(branchDTO.getBranchName(), optionalCompany.get())) {
+        if (checkBranchName(branchDTO.getBranchName(), optionalCompany.get())) {
             apiResponse.setMessage("branch name is used before ");
             apiResponse.setStatusCode(400);
             apiResponse.setStatus(false);
@@ -244,7 +245,7 @@ public class BranchService {
         }
 
         // Delete related inventory drugs and the branch itself
-        inventoryDrugRepository.deleteAllByBranchId(branchId);
+        inventoryDrugRepository.deleteAllByBranch_BranchId(branchId);
         branchRepository.delete(branch);
 
         apiResponse.setMessage("Branch deleted successfully");
@@ -255,14 +256,14 @@ public class BranchService {
 
     public ApiResponse<List<InventoryDrug>> getBranchDrugs(Long branchId) {
         ApiResponse<List<InventoryDrug>> apiResponse = new ApiResponse<>();
-        if(!branchRepository.existsById(branchId)) {
+        if (!branchRepository.existsById(branchId)) {
             apiResponse.setStatusCode(200);
             apiResponse.setData(null);
             apiResponse.setMessage("Branch not found");
             apiResponse.setStatus(false);
             return apiResponse;
         }
-        apiResponse.setData(inventoryDrugRepository.findAllByBranchId(branchId));
+        apiResponse.setData(inventoryDrugRepository.findAllByBranch_BranchId(branchId));
         apiResponse.setStatusCode(200);
         apiResponse.setMessage("drugs found");
         apiResponse.setStatus(true);

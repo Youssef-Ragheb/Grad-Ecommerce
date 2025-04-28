@@ -3,30 +3,30 @@ package com.grad.ecommerce_ai.mappers;
 import com.grad.ecommerce_ai.dto.InventoryDrugDTO;
 import com.grad.ecommerce_ai.entity.InventoryDrug;
 
+import static com.grad.ecommerce_ai.mappers.DtoConverter.*;
+
 
 public class InventoryDrugMapper {
 
-//
-//    public static InventoryDrug dtoToDrug(InventoryDrugDTO dto) {
-//        if (dto == null) {
-//            return null;
-//        }
-//
-//        InventoryDrug inventoryDrug = new InventoryDrug();
-//
-//        inventoryDrug.setId(dto.getId());
-//        inventoryDrug.setDrugId(dto.getDrugId());
-//        inventoryDrug.setCategoryId(dto.getCategoryId());
-//        inventoryDrug.setActiveIngredientId(dto.getActiveIngredientId());
-//        inventoryDrug.setPrice(dto.getPrice());
-//        inventoryDrug.setStock(dto.getStock());
-//        inventoryDrug.setBranchId(dto.getBranchId());
-//
-//        return inventoryDrug;
-//    }
+
+    public static InventoryDrug inventoryDrugDtoToInventoryDrug(InventoryDrugDTO dto) {
+        if (dto == null) {
+            return null;
+        }
+
+        InventoryDrug inventoryDrug = new InventoryDrug();
+
+        inventoryDrug.setId(dto.getId());
+        inventoryDrug.setDrug(drugDtoToDrug(dto.getDrugDTO()));
+        inventoryDrug.setPrice(dto.getPrice());
+        inventoryDrug.setStock(dto.getStock());
+        inventoryDrug.setBranch(branchDTOToBranch(dto.getBranchDTO()));
+
+        return inventoryDrug;
+    }
 
     // Convert Drug to DrugDTO
-    public static InventoryDrugDTO drugToDto(InventoryDrug inventoryDrug) {
+    public static InventoryDrugDTO inventoryDrugToDto(InventoryDrug inventoryDrug) {
         if (inventoryDrug == null) {
             return null;
         }
@@ -34,12 +34,10 @@ public class InventoryDrugMapper {
         InventoryDrugDTO dto = new InventoryDrugDTO();
 
         dto.setId(inventoryDrug.getId());
-        dto.setDrugId(inventoryDrug.getDrugId());
-        dto.setCategoryId(inventoryDrug.getCategoryId());
-        dto.setActiveIngredientId(inventoryDrug.getActiveIngredientId());
+        dto.setDrugDTO(drugToDto(inventoryDrug.getDrug()));
         dto.setPrice(inventoryDrug.getPrice());
         dto.setStock(inventoryDrug.getStock());
-        dto.setBranchId(inventoryDrug.getBranchId());
+        dto.setBranchDTO(branchToDto(inventoryDrug.getBranch()));
 
         return dto;
     }

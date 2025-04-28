@@ -31,11 +31,11 @@ public class ItemService {
     public ApiResponse<Item> save(Item item, String token) {
         ApiResponse<Item> apiResponse = new ApiResponse<>();
         Long userId = jwtService.extractUserId(token);
-        item.setUserId(userId);
+
         Optional<User> userOptional = userRepository.findById(userId);
         if (userOptional.isPresent() && userOptional.get().getUserRoles().equals(UserRoles.ROLE_CLIENT)) {
 
-            List<InventoryDrug> inventoryDrug = inventoryDrugRepository.findAllByDrugId(item.getDrugId());
+            List<InventoryDrug> inventoryDrug = inventoryDrugRepository.findAllByDrug_Id(item.getDrug().getId());
             if (inventoryDrug.isEmpty()) {
                 apiResponse.setMessage("drug Is not found");
                 apiResponse.setStatusCode(404);
@@ -73,7 +73,7 @@ public class ItemService {
         return apiResponse;
     }
 
-    public ApiResponse<Item> updateItem(String id, Item item, String token) {
+    public ApiResponse<Item> updateItem(Long id, Item item, String token) {
         ApiResponse<Item> apiResponse = new ApiResponse<>();
         item.setId(id);
         Long userId = jwtService.extractUserId(token);
@@ -146,10 +146,10 @@ public class ItemService {
      */
     public List<Request> findBestBranchesForOrder(List<Item> orderItems) {
         // 1. Calculate total needed quantities for each drug
-        Map<String, Integer> neededDrugs = calculateNeededDrugs(orderItems);
+        Map<Long, Integer> neededDrugs = calculateNeededDrugs(orderItems);
 
         // 2. Find all branches that have at least some of the drugs we need
-        Map<Long, Map<String, Integer>> branchInventories = getAvailableBranches(neededDrugs);
+        Map<Long, Map<Long, Integer>> branchInventories = getAvailableBranches(neededDrugs);
 
         // 3. Select branches that can cover all drugs with minimum branches
         List<Long> selectedBranchIds = selectMinimumBranches(neededDrugs, branchInventories);
@@ -159,27 +159,27 @@ public class ItemService {
     }
 
     // Helper method 1: Calculate how much of each drug we need
-    private Map<String, Integer> calculateNeededDrugs(List<Item> items) {
-        Map<String, Integer> needed = new HashMap<>();
+    private Map<Long, Integer> calculateNeededDrugs(List<Item> items) {
+        Map<Long, Integer> needed = new HashMap<>();
         for (Item item : items) {
-            needed.put(item.getDrugId(), needed.getOrDefault(item.getDrugId(), 0) + item.getQuantity());
+            needed.put(item.getDrug().getId(), needed.getOrDefault(item.getDrug().getId(), 0) + item.getQuantity());
         }
         return needed;
     }
 
     // Helper method 2: Find branches with available stock
-    private Map<Long, Map<String, Integer>> getAvailableBranches(Map<String, Integer> neededDrugs) {
+    private Map<Long, Map<Long, Integer>> getAvailableBranches(Map<Long, Integer> neededDrugs) {
         List<InventoryDrug> inventories = inventoryDrugRepository.findAllByDrugIdIn(new ArrayList<>(neededDrugs.keySet()));
 
-        Map<Long, Map<String, Integer>> branchStocks = new HashMap<>();
+        Map<Long, Map<Long, Integer>> branchStocks = new HashMap<>();
 
         for (InventoryDrug inv : inventories) {
-            String drugId = inv.getDrugId();
+            Long drugId = inv.getDrug().getId();
             int needed = neededDrugs.get(drugId);
 
             if (inv.getStock() >= needed) {
                 branchStocks
-                        .computeIfAbsent(inv.getBranchId(), k -> new HashMap<>())
+                        .computeIfAbsent(inv.getBranch().getBranchId(), k -> new HashMap<>())
                         .put(drugId, inv.getStock());
             }
         }
@@ -188,10 +188,10 @@ public class ItemService {
     }
 
     // Helper method 3: Select the fewest branches that can fulfill everything
-    private List<Long> selectMinimumBranches(Map<String, Integer> neededDrugs,
-                                             Map<Long, Map<String, Integer>> branchInventories) {
+    private List<Long> selectMinimumBranches(Map<Long, Integer> neededDrugs,
+                                             Map<Long, Map<Long, Integer>> branchInventories) {
 
-        Set<String> remainingDrugs = new HashSet<>(neededDrugs.keySet());
+        Set<Long> remainingDrugs = new HashSet<>(neededDrugs.keySet());
         List<Long> selectedBranches = new ArrayList<>();
 
         while (!remainingDrugs.isEmpty()) {
@@ -200,11 +200,11 @@ public class ItemService {
             int mostDrugsCovered = 0;
 
             for (Long branchId : branchInventories.keySet()) {
-                Set<String> branchDrugs = branchInventories.get(branchId).keySet();
+                Set<Long> branchDrugs = branchInventories.get(branchId).keySet();
 
                 // See how many remaining drugs this branch has
                 int covered = 0;
-                for (String drugId : branchDrugs) {
+                for (Long drugId : branchDrugs) {
                     if (remainingDrugs.contains(drugId)) {
                         covered++;
                     }

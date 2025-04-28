@@ -1,27 +1,28 @@
 package com.grad.ecommerce_ai.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
+import jakarta.persistence.*;
+import lombok.*;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
-@Document(collection = "inventory_drug")
+@Getter
+@Setter
+@Entity
+@Table(name = "inventory_drugs")
 public class InventoryDrug {
     @Id
-    private String id;
-    @Indexed
-    private String drugId;
-    private String drugName;
-    private String categoryId;
-    private String activeIngredientId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "drug_id", nullable = false)
+    private Drugs drug;
+
     private float price;
     private int stock;
-    @Indexed
-    private Long branchId;
+
+    @ManyToOne
+    @JoinColumn(name = "branch_id", nullable = false)
+    private Branch branch;
 
 }

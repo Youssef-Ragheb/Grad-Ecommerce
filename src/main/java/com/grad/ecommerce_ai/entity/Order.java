@@ -1,22 +1,38 @@
 package com.grad.ecommerce_ai.entity;
 
 import com.grad.ecommerce_ai.dto.enums.Status;
+import jakarta.persistence.*;
 import lombok.Data;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
+import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.data.annotation.CreatedDate;
 
+import java.sql.Timestamp;
 import java.util.List;
 
+@Entity
 @Data
-@Document(collection = "orders")
+@Table(name = "orders")
 public class Order {
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     private float totalPrice;
     private String paymentMethod;
+
+    @Enumerated(EnumType.STRING)
     private Status status;
-    private Long userId;
-    @Indexed
-    private List<String> requestsIds;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id") // Fixed column name
+    private User user;
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    private List<Request> requests;
+
+    @ManyToOne
+    @JoinColumn(name = "log_history_id") // Fixed column name
+    private LogHistory logHistory;
+    @CreatedDate
+    private Timestamp createdAt;
 }

@@ -1,6 +1,7 @@
 package com.grad.ecommerce_ai.controller;
 
 import com.grad.ecommerce_ai.dto.ApiResponse;
+import com.grad.ecommerce_ai.dto.CategoryDTO;
 import com.grad.ecommerce_ai.entity.Category;
 import com.grad.ecommerce_ai.service.CategoryService;
 import org.springframework.http.ResponseEntity;
@@ -20,38 +21,38 @@ public class CategoryController {
 
 
     @PostMapping
-    public ResponseEntity<ApiResponse<Category>> createCategory(@RequestBody Category category,
-                                                                @RequestHeader String token) {
-        ApiResponse<Category> response = categoryService.createCategory(category, token);
+    public ResponseEntity<ApiResponse<CategoryDTO>> createCategory(@RequestBody CategoryDTO category,
+                                                                   @RequestHeader String token) {
+        ApiResponse<CategoryDTO> response = categoryService.createCategory(category, token);
         return ResponseEntity.status(response.getStatusCode()).body(response);
     }
 
     // Get a category by ID
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Category>> getCategory(@PathVariable String id) {
-        ApiResponse<Category> response = categoryService.getCategory(id);
+    public ResponseEntity<ApiResponse<CategoryDTO>> getCategory(@PathVariable Long id) {
+        ApiResponse<CategoryDTO> response = categoryService.getCategory(id);
         return ResponseEntity.status(response.getStatusCode()).body(response);
     }
 
     // Get all categories
     @GetMapping
-    public ResponseEntity<ApiResponse<List<Category>>> getAllCategories() {
-        ApiResponse<List<Category>> response = categoryService.getAllCategories();
+    public ResponseEntity<ApiResponse<List<CategoryDTO>>> getAllCategories() {
+        ApiResponse<List<CategoryDTO>> response = categoryService.getAllCategories();
         return ResponseEntity.status(response.getStatusCode()).body(response);
     }
 
     // Update a category
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<Category>> updateCategory(@PathVariable String id,
-                                                                @RequestBody Category updatedCategory,
+    public ResponseEntity<ApiResponse<CategoryDTO>> updateCategory(@PathVariable Long id,
+                                                                @RequestBody CategoryDTO updatedCategory,
                                                                 @RequestHeader String token) {
-        ApiResponse<Category> response = categoryService.updateCategory(id, updatedCategory, token);
+        ApiResponse<CategoryDTO> response = categoryService.updateCategory(id, updatedCategory, token);
         return ResponseEntity.status(response.getStatusCode()).body(response);
     }
 
     // Delete a category
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteCategory(@PathVariable String id,
+    public ResponseEntity<ApiResponse<Void>> deleteCategory(@PathVariable Long id,
                                                             @RequestHeader String token) {
         ApiResponse<Void> response = categoryService.deleteCategory(id, token);
         return ResponseEntity.status(response.getStatusCode()).body(response);

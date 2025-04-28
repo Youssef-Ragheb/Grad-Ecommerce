@@ -1,26 +1,35 @@
 package com.grad.ecommerce_ai.entity;
 
 import com.grad.ecommerce_ai.dto.enums.Status;
+import jakarta.persistence.*;
 import lombok.Data;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
-
 import java.util.List;
 
+@Entity
 @Data
-@Document(collection = "request")
+@Table(name = "requests") // Changed to plural for consistency
 public class Request {
     @Id
-    private String requestId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long requestId;
+
+    @OneToMany(mappedBy = "request", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Item> items;
-    @Indexed
-    private Long branchId;
-    @Indexed
-    private String orderId;
-    private Status status;// "PENDING", "PREPARING", "READY", "SHIPPED"
-    private Long customerId;
+
+    @ManyToOne
+    @JoinColumn(name = "branch_id", nullable = false)
+    private Branch branch; // Fixed variable naming
+
+    @ManyToOne
+    @JoinColumn(name = "order_id", nullable = false)
+    private Order order; // Fixed column name
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User customer; // Fixed column name
+
+    @Enumerated(EnumType.STRING)
+    private Status status; // Stores Enum values as strings
+
     private float totalPriceOfRequest;
-
-
 }

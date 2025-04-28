@@ -1,8 +1,9 @@
 package com.grad.ecommerce_ai.service;
 
 import com.grad.ecommerce_ai.dto.ApiResponse;
-import com.grad.ecommerce_ai.entity.User;
 import com.grad.ecommerce_ai.dto.enums.UserRoles;
+import com.grad.ecommerce_ai.entity.Drugs;
+import com.grad.ecommerce_ai.entity.User;
 import com.grad.ecommerce_ai.entity.Wishlist;
 import com.grad.ecommerce_ai.repository.MainDrugRepository;
 import com.grad.ecommerce_ai.repository.UserRepository;
@@ -19,7 +20,7 @@ public class WishlistService {
     private final MainDrugRepository mainDrugRepository;
     private final WishlistRepository wishlistRepository;
 
-    public WishlistService (JwtService jwtService, UserRepository userRepository, MainDrugRepository mainDrugRepository, WishlistRepository wishlistRepository) {
+    public WishlistService(JwtService jwtService, UserRepository userRepository, MainDrugRepository mainDrugRepository, WishlistRepository wishlistRepository) {
         this.jwtService = jwtService;
         this.userRepository = userRepository;
         this.mainDrugRepository = mainDrugRepository;
@@ -44,8 +45,8 @@ public class WishlistService {
             apiResponse.setStatus(false);
             return apiResponse;
         }
-        String drugId = wishlist.getDrugId();
-        if (!mainDrugRepository.existsById(drugId)) {
+        Drugs drugs = wishlist.getDrug();
+        if (!mainDrugRepository.existsById(drugs.getId())) {
             apiResponse.setMessage("drug not found");
             apiResponse.setStatusCode(404);
             apiResponse.setData(null);
@@ -53,8 +54,8 @@ public class WishlistService {
             return apiResponse;
         }
         Wishlist wishlistEntity = new Wishlist();
-        wishlistEntity.setUserId(userId);
-        wishlistEntity.setDrugId(drugId);
+        wishlistEntity.setUser(user.get());
+        wishlistEntity.setDrug(drugs);
         apiResponse.setData(wishlistRepository.save(wishlistEntity));
         apiResponse.setMessage("wishlist saved");
         apiResponse.setStatusCode(200);
@@ -64,7 +65,7 @@ public class WishlistService {
 
     public ApiResponse<List<Wishlist>> getWishlist(String token) {
         ApiResponse<List<Wishlist>> apiResponse = new ApiResponse<>();
-        Long userId = jwtService.extractUserId(token);
+        Long userId = userIdentity(token);
         Optional<User> user = userRepository.findById(userId);
         if (user.isEmpty()) {
             apiResponse.setMessage("User not found");
@@ -89,7 +90,7 @@ public class WishlistService {
 
     public ApiResponse<Boolean> deleteWishlist(Wishlist wishlist, String token) {
         ApiResponse<Boolean> apiResponse = new ApiResponse<>();
-        Long userId = jwtService.extractUserId(token);
+        Long userId = userIdentity(token);
         Optional<User> user = userRepository.findById(userId);
         if (user.isEmpty()) {
             apiResponse.setMessage("User not found");
@@ -105,7 +106,7 @@ public class WishlistService {
             apiResponse.setStatus(false);
             return apiResponse;
         }
-        if(!wishlistRepository.existsById(wishlist.getId())) {
+        if (!wishlistRepository.existsById(wishlist.getId())) {
             apiResponse.setData(false);
             apiResponse.setStatusCode(404);
             apiResponse.setStatus(false);
@@ -118,5 +119,8 @@ public class WishlistService {
         apiResponse.setStatus(true);
         apiResponse.setMessage("wishlist deleted");
         return apiResponse;
+    }
+    private Long userIdentity(String token) {
+        return jwtService.extractUserId(token);
     }
 }

@@ -1,11 +1,14 @@
 package com.grad.ecommerce_ai.repository;
 
 import com.grad.ecommerce_ai.entity.ActiveIngredient;
-import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
 
 import java.util.List;
 
-
-public interface ActiveIngredientRepository extends MongoRepository<ActiveIngredient, String> {
-    List<ActiveIngredient> findByActiveIngredientContainingIgnoreCase(String name);
+@Repository
+public interface ActiveIngredientRepository extends JpaRepository<ActiveIngredient, Long> {
+    List<ActiveIngredient> findAllByActiveIngredientNameContainingIgnoreCase(String name);
+    //findByAllActiveIngredientContainingIgnoreCase
 }

@@ -17,29 +17,29 @@ public class LogHistoryService {
         this.logHistoryRepository = logHistoryRepository;
     }
 
-    public ApiResponse<LogHistory> addOrderToLog(String orderId, Long userId) {
-        ApiResponse<LogHistory> response = new ApiResponse<>();
-
-        Optional<LogHistory> logOptional = logHistoryRepository.findByUserId(userId);
-        LogHistory logHistory;
-
-        if (logOptional.isPresent()) {
-            logHistory = logOptional.get();
-            logHistory.getOrderIds().add(orderId);
-        } else {
-            logHistory = new LogHistory();
-            logHistory.setUserId(userId);
-            logHistory.setOrderIds(List.of(orderId));
-        }
-
-        logHistoryRepository.save(logHistory);
-        response.setStatus(true);
-        response.setStatusCode(200);
-        response.setMessage("Log updated");
-        response.setData(logHistory);
-
-        return response;
-    }
+//    public ApiResponse<LogHistory> addOrderToLog(String orderId, Long userId) {
+//        ApiResponse<LogHistory> response = new ApiResponse<>();
+//
+//        Optional<LogHistory> logOptional = logHistoryRepository.findByUserId(userId);
+//        LogHistory logHistory;
+//
+//        if (logOptional.isPresent()) {
+//            logHistory = logOptional.get();
+//            logHistory.getOrderIds().add(orderId);
+//        } else {
+//            logHistory = new LogHistory();
+//            logHistory.setUser(user);
+//            logHistory.setOrderIds(List.of(orderId));
+//        }
+//
+//        logHistoryRepository.save(logHistory);
+//        response.setStatus(true);
+//        response.setStatusCode(200);
+//        response.setMessage("Log updated");
+//        response.setData(logHistory);
+//
+//        return response;
+//    }
 
     public ApiResponse<LogHistory> getUserLogHistory(Long userId) {
         ApiResponse<LogHistory> response = new ApiResponse<>();

@@ -3,7 +3,7 @@ package com.grad.ecommerce_ai.service;
 import com.grad.ecommerce_ai.dto.ApiResponse;
 import com.grad.ecommerce_ai.dto.BranchDTO;
 import com.grad.ecommerce_ai.dto.DrugResponseDetailsDto;
-import com.grad.ecommerce_ai.dto.DrugResponseDto;
+import com.grad.ecommerce_ai.dto.DrugResponseDTO;
 import com.grad.ecommerce_ai.entity.ActiveIngredient;
 import com.grad.ecommerce_ai.entity.Branch;
 import com.grad.ecommerce_ai.entity.Drugs;
@@ -35,9 +35,9 @@ public class DrugResponseToClientService {
         this.activeIngredientRepository = activeIngredientRepository;
         this.branchRepository = branchRepository;
     }
-
+/*
     //TODO view products..
-    public ApiResponse<List<BranchDTO>> getBranchesHaveDrug(String drugId) {
+    public ApiResponse<List<BranchDTO>> getBranchesHaveDrug(Long drugId) {
         ApiResponse<List<BranchDTO>> response = new ApiResponse<>();
 
         // Check if the drug exists
@@ -50,7 +50,7 @@ public class DrugResponseToClientService {
         }
 
         // Get all inventory items with the specified drugId
-        List<InventoryDrug> inventoryDrugList = inventoryDrugRepository.findAllByDrugId(drugId);
+        List<InventoryDrug> inventoryDrugList = inventoryDrugRepository.findAllByDrug_Id(drugId);
         List<Long> branchIds = inventoryDrugList.stream()
                 .filter(inventoryDrug -> inventoryDrug.getStock() > 0) // Only branches with stock > 0
                 .map(InventoryDrug::getBranchId)
@@ -67,7 +67,7 @@ public class DrugResponseToClientService {
         List<BranchDTO> branchDTOS = new ArrayList<>();
         for (InventoryDrug inventoryDrug : inventoryDrugList) {
             if (inventoryDrug.getStock() > 0) {
-                Branch branch = branchMap.get(inventoryDrug.getBranchId());
+                Branch branch = branchMap.get(inventoryDrug.getBranch().getBranchId());
                 if (branch != null) {
                     BranchDTO branchDTO = branchToDto(branch);
                     branchDTO.setPrice(inventoryDrug.getPrice());
@@ -90,20 +90,22 @@ public class DrugResponseToClientService {
 
         return response;
     }
-    public ApiResponse<List<DrugResponseDto>> getDrugsWithCategory(String categoryId) {
 
-        ApiResponse<List<DrugResponseDto>> response = new ApiResponse<>();
-        List<DrugResponseDto> drugResponseList = new ArrayList<>();
+ */
+    public ApiResponse<List<DrugResponseDTO>> getDrugsWithCategory(Long categoryId) {
+
+        ApiResponse<List<DrugResponseDTO>> response = new ApiResponse<>();
+        List<DrugResponseDTO> drugResponseList = new ArrayList<>();
 
         List<Drugs> drugsList = mainDrugRepository.findByCategoryId(categoryId);
 
         return getListApiResponse(response, drugResponseList, drugsList);
     }
 
-    public ApiResponse<List<DrugResponseDto>> getDrugsByDrugName(String drugName) {
-        ApiResponse<List<DrugResponseDto>> response = new ApiResponse<>();
+    public ApiResponse<List<DrugResponseDTO>> getDrugsByDrugName(String drugName) {
+        ApiResponse<List<DrugResponseDTO>> response = new ApiResponse<>();
 
-        List<DrugResponseDto> drugResponseList = new ArrayList<>();
+        List<DrugResponseDTO> drugResponseList = new ArrayList<>();
 
 
 
@@ -112,16 +114,16 @@ public class DrugResponseToClientService {
         return getListApiResponse(response, drugResponseList, drugsList);
     }
 
-    private ApiResponse<List<DrugResponseDto>> getListApiResponse(
-            ApiResponse<List<DrugResponseDto>> response,
-            List<DrugResponseDto> drugResponseList, List<Drugs> drugsList) {
-        List<String> drugIds = drugsList.stream().map(Drugs::getId).collect(Collectors.toList());
+    private ApiResponse<List<DrugResponseDTO>> getListApiResponse(
+            ApiResponse<List<DrugResponseDTO>> response,
+            List<DrugResponseDTO> drugResponseList, List<Drugs> drugsList) {
+        List<Long> drugIds = drugsList.stream().map(Drugs::getId).collect(Collectors.toList());
 
         List<InventoryDrug> allInventoryDrugs = inventoryDrugRepository.findAllByDrugIdIn(drugIds);
-        Map<String, List<InventoryDrug>> inventoryByDrugId = allInventoryDrugs.stream()
-                .collect(Collectors.groupingBy(InventoryDrug::getDrugId));
+        Map<Long, List<InventoryDrug>> inventoryByDrugId = allInventoryDrugs.stream()
+                .collect(Collectors.groupingBy(inventoryDrug -> inventoryDrug.getDrug().getId()));
         for (Drugs drugEntity : drugsList) {
-            DrugResponseDto drugResponse = new DrugResponseDto();
+            DrugResponseDTO drugResponse = new DrugResponseDTO();
             drugResponse.setDrugName(drugEntity.getDrugName());
             drugResponse.setImageUrl(drugEntity.getLogo());
             drugResponse.setDescription(drugEntity.getDescription());
@@ -153,7 +155,7 @@ public class DrugResponseToClientService {
     }
 
     //TODO view product details..
-    public ApiResponse<DrugResponseDetailsDto> getDrugDetailsView(String drugId) {
+    public ApiResponse<DrugResponseDetailsDto> getDrugDetailsView(Long drugId) {
         ApiResponse<DrugResponseDetailsDto> response = new ApiResponse<>();
         try {
             Drugs drug = mainDrugRepository.findById(drugId).orElseThrow();
@@ -164,7 +166,7 @@ public class DrugResponseToClientService {
             drugResponseDetailsDto.setDescription(drug.getDescription());
             float averagePrice;
             //
-            List<InventoryDrug> inventoryDrugList = inventoryDrugRepository.findAllByDrugId(drugId);
+            List<InventoryDrug> inventoryDrugList = inventoryDrugRepository.findAllByDrug_Id(drugId);
             int inventoryDrugListSize = inventoryDrugList.size();
             float averageTotalPrice = 0;
             boolean isAvailable = false;
@@ -178,14 +180,14 @@ public class DrugResponseToClientService {
             drugResponseDetailsDto.setAvailable(isAvailable);
             drugResponseDetailsDto.setPrice(averagePrice);
             //active and category name
-            Optional<ActiveIngredient> activeIngredient = activeIngredientRepository.findById(drug.getActiveIngredientId());
+            Optional<ActiveIngredient> activeIngredient = activeIngredientRepository.findById(drug.getActiveIngredient().getId());
             if (activeIngredient.isEmpty()) {
                 response.setMessage("active ingredient is not found");
                 response.setStatusCode(404);
                 response.setStatus(false);
                 return response;
             }
-            drugResponseDetailsDto.setActiveIngredients(activeIngredient.get().getActiveIngredient());
+            drugResponseDetailsDto.setActiveIngredients(activeIngredient.get().getActiveIngredientName());
 //            Optional<Category> category = categoryRepository.findById(drug.getCategoryId());
 //            if (category.isEmpty()) {
 //                response.setMessage("category is not found");

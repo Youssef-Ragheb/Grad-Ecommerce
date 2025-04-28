@@ -1,20 +1,24 @@
 package com.grad.ecommerce_ai.service;
 
 import com.grad.ecommerce_ai.dto.ApiResponse;
+import com.grad.ecommerce_ai.dto.DrugDTO;
 import com.grad.ecommerce_ai.dto.InventoryDrugDTO;
 import com.grad.ecommerce_ai.entity.Branch;
 import com.grad.ecommerce_ai.entity.Drugs;
 import com.grad.ecommerce_ai.entity.InventoryDrug;
+import com.grad.ecommerce_ai.mappers.DtoConverter;
 import com.grad.ecommerce_ai.repository.BranchRepository;
 import com.grad.ecommerce_ai.repository.InventoryDrugRepository;
 import com.grad.ecommerce_ai.repository.MainDrugRepository;
 import com.grad.ecommerce_ai.utils.CheckAuth;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.grad.ecommerce_ai.mappers.InventoryDrugMapper.*;
+import static com.grad.ecommerce_ai.mappers.DtoConverter.*;
+import static com.grad.ecommerce_ai.mappers.InventoryDrugMapper.inventoryDrugToDto;
 
 @Service
 public class DrugService {
@@ -35,66 +39,67 @@ public class DrugService {
         this.mainDrugRepository = mainDrugRepository;
 
     }
-/*
-    public ApiResponse<InventoryDrugDTO> addDrug(InventoryDrugDTO dragDto, String token) {
-        // TODO get the id from token when we add security
-        ApiResponse<InventoryDrugDTO> response = new ApiResponse<>();
-        Long userId = jwtService.extractUserId(token);
-        Optional<Branch> branch = branchRepository.findById(dragDto.getBranchId());
-        if (branch.isEmpty()) {
-            response.setMessage("Branch not found");
-            response.setStatusCode(404);
-            response.setStatus(false);
-            return response;
-        }
-        Optional<User> user = userRepository.findById(userId);
-        if (user.isEmpty()) {
-            response.setMessage("User not found");
-            response.setStatusCode(404);
-            response.setStatus(false);
+
+    /*
+        public ApiResponse<InventoryDrugDTO> addDrug(InventoryDrugDTO dragDto, String token) {
+            // TODO get the id from token when we add security
+            ApiResponse<InventoryDrugDTO> response = new ApiResponse<>();
+            Long userId = jwtService.extractUserId(token);
+            Optional<Branch> branch = branchRepository.findById(dragDto.getBranchId());
+            if (branch.isEmpty()) {
+                response.setMessage("Branch not found");
+                response.setStatusCode(404);
+                response.setStatus(false);
+                return response;
+            }
+            Optional<User> user = userRepository.findById(userId);
+            if (user.isEmpty()) {
+                response.setMessage("User not found");
+                response.setStatusCode(404);
+                response.setStatus(false);
+                return response;
+            }
+
+            if (!(checkAuth.checkAuthToBranch(userId, dragDto.getBranchId()))) {
+                response.setMessage("unauthorized");
+                response.setStatusCode(401);
+                response.setStatus(false);
+                return response;
+            }
+            ApiResponse<Boolean> checkActiveIngredient = activeIngredientService.checkDrugActiveIngredient(dragDto.getActiveIngredientId(), dragDto.getDrugId());
+            if (!checkActiveIngredient.getData()) {
+                response.setMessage(checkActiveIngredient.getMessage());
+                response.setStatusCode(checkActiveIngredient.getStatusCode());
+                response.setStatus(false);
+                return response;
+            }
+
+            InventoryDrug inventoryDrug = dtoToDrug(dragDto);
+
+            response.setData(drugToDto(inventoryDrugRepository.save(inventoryDrug)));
+            response.setStatus(true);
+            response.setMessage("Drug Added");
             return response;
         }
 
-        if (!(checkAuth.checkAuthToBranch(userId, dragDto.getBranchId()))) {
-            response.setMessage("unauthorized");
-            response.setStatusCode(401);
-            response.setStatus(false);
-            return response;
-        }
-        ApiResponse<Boolean> checkActiveIngredient = activeIngredientService.checkDrugActiveIngredient(dragDto.getActiveIngredientId(), dragDto.getDrugId());
-        if (!checkActiveIngredient.getData()) {
-            response.setMessage(checkActiveIngredient.getMessage());
-            response.setStatusCode(checkActiveIngredient.getStatusCode());
-            response.setStatus(false);
-            return response;
-        }
-
-        InventoryDrug inventoryDrug = dtoToDrug(dragDto);
-
-        response.setData(drugToDto(inventoryDrugRepository.save(inventoryDrug)));
-        response.setStatus(true);
-        response.setMessage("Drug Added");
-        return response;
-    }
-
-    public ApiResponse<List<InventoryDrugDTO>> getBranchDrags(Long branchId) {
-        ApiResponse<List<InventoryDrugDTO>> apiResponse = new ApiResponse<>();
-        Optional<Branch> branch = branchRepository.findById(branchId);
-        if (branch.isEmpty()) {
-            apiResponse.setMessage("Branch not found");
-            apiResponse.setStatus(false);
-            apiResponse.setStatusCode(404);
+        public ApiResponse<List<InventoryDrugDTO>> getBranchDrags(Long branchId) {
+            ApiResponse<List<InventoryDrugDTO>> apiResponse = new ApiResponse<>();
+            Optional<Branch> branch = branchRepository.findById(branchId);
+            if (branch.isEmpty()) {
+                apiResponse.setMessage("Branch not found");
+                apiResponse.setStatus(false);
+                apiResponse.setStatusCode(404);
+                return apiResponse;
+            }
+            apiResponse.setData(drugListToDtoList(inventoryDrugRepository.findAllByBranchId(branchId)));
+            apiResponse.setMessage("Drugs found");
+            apiResponse.setStatusCode(200);
+            apiResponse.setStatus(true);
             return apiResponse;
         }
-        apiResponse.setData(drugListToDtoList(inventoryDrugRepository.findAllByBranchId(branchId)));
-        apiResponse.setMessage("Drugs found");
-        apiResponse.setStatusCode(200);
-        apiResponse.setStatus(true);
-        return apiResponse;
-    }
-  */
-    public ApiResponse<Drugs> addDrugToMain(Drugs drug, String token) {
-        ApiResponse<Drugs> apiResponse = new ApiResponse<>();
+      */
+    public ApiResponse<DrugDTO> addDrugToMain(DrugDTO drugDTO, String token) {
+        ApiResponse<DrugDTO> apiResponse = new ApiResponse<>();
         if (!jwtService.isAdmin(token)) {
             apiResponse.setMessage("unauthorized");
             apiResponse.setData(null);
@@ -102,7 +107,8 @@ public class DrugService {
             apiResponse.setStatus(false);
             return apiResponse;
         }
-        apiResponse.setData(mainDrugRepository.save(drug));
+        Drugs drugs = mainDrugRepository.save(drugDtoToDrug(drugDTO));
+        apiResponse.setData(drugToDto(drugs));
         apiResponse.setStatus(true);
         apiResponse.setStatusCode(200);
         apiResponse.setMessage("drug added");
@@ -110,8 +116,8 @@ public class DrugService {
     }
 
     // Read a single drug by ID
-    public ApiResponse<Drugs> getDrugById(String id) {
-        ApiResponse<Drugs> apiResponse = new ApiResponse<>();
+    public ApiResponse<DrugDTO> getDrugById(Long id) {
+        ApiResponse<DrugDTO> apiResponse = new ApiResponse<>();
         Optional<Drugs> drugOpt = mainDrugRepository.findById(id);
         if (drugOpt.isEmpty()) {
             apiResponse.setMessage("Drug not found");
@@ -119,7 +125,7 @@ public class DrugService {
             apiResponse.setStatus(false);
             return apiResponse;
         }
-        apiResponse.setData(drugOpt.get());
+        apiResponse.setData(drugToDto(drugOpt.get()));
         apiResponse.setStatus(true);
         apiResponse.setStatusCode(200);
         apiResponse.setMessage("Drug retrieved successfully");
@@ -127,10 +133,14 @@ public class DrugService {
     }
 
     // Get a list of all drugs
-    public ApiResponse<List<Drugs>> getAllDrugs() {
-        ApiResponse<List<Drugs>> apiResponse = new ApiResponse<>();
+    public ApiResponse<List<DrugDTO>> getAllDrugs() {
+        ApiResponse<List<DrugDTO>> apiResponse = new ApiResponse<>();
         List<Drugs> drugsList = mainDrugRepository.findAll();
-        apiResponse.setData(drugsList);
+        List<DrugDTO> dtoList = new ArrayList<>();
+        for (Drugs d : drugsList) {
+            dtoList.add(DtoConverter.drugToDto(d));
+        }
+        apiResponse.setData(dtoList);
         apiResponse.setStatus(true);
         apiResponse.setStatusCode(200);
         apiResponse.setMessage("All drugs retrieved successfully");
@@ -138,8 +148,8 @@ public class DrugService {
     }
 
     // Update an existing drug by ID
-    public ApiResponse<Drugs> updateDrug(String id, Drugs updatedDrug, String token) {
-        ApiResponse<Drugs> apiResponse = new ApiResponse<>();
+    public ApiResponse<DrugDTO> updateDrug(Long id, DrugDTO updatedDrug, String token) {
+        ApiResponse<DrugDTO> apiResponse = new ApiResponse<>();
         if (!jwtService.isAdmin(token)) {
             apiResponse.setMessage("unauthorized");
             apiResponse.setData(null);
@@ -157,14 +167,14 @@ public class DrugService {
         }
 
         Drugs existingDrug = existingDrugOpt.get();
-        existingDrug.setActiveIngredientId(updatedDrug.getActiveIngredientId());
-        existingDrug.setCategoryId(updatedDrug.getCategoryId());
+        existingDrug.setActiveIngredient(activeIngredientDtoToActiveIngredient(updatedDrug.getActiveIngredientDto()));
+        existingDrug.setCategory(categoryDtoToCategory(updatedDrug.getCategoryDTO()));
         existingDrug.setDrugName(updatedDrug.getDrugName());
         existingDrug.setDescription(updatedDrug.getDescription());
-        existingDrug.setLogo(updatedDrug.getLogo());
+        existingDrug.setLogo(updatedDrug.getLogoUrl());
 
         Drugs savedDrug = mainDrugRepository.save(existingDrug);
-        apiResponse.setData(savedDrug);
+        apiResponse.setData(drugToDto(savedDrug));
         apiResponse.setStatus(true);
         apiResponse.setStatusCode(200);
         apiResponse.setMessage("Drug updated successfully");
@@ -172,7 +182,7 @@ public class DrugService {
     }
 
     // Delete an existing drug by ID
-    public ApiResponse<Void> deleteDrug(String id, String token) {
+    public ApiResponse<Void> deleteDrug(Long id, String token) {
         ApiResponse<Void> apiResponse = new ApiResponse<>();
         if (!jwtService.isAdmin(token)) {
             apiResponse.setMessage("unauthorized");
@@ -195,12 +205,17 @@ public class DrugService {
         apiResponse.setMessage("Drug deleted successfully");
         return apiResponse;
     }
+
     // Method to search drugs by name
-    public ApiResponse<List<Drugs>> searchDrugsByName(String name) {
-        ApiResponse<List<Drugs>> response = new ApiResponse<>();
+    public ApiResponse<List<DrugDTO>> searchDrugsByName(String name) {
+        ApiResponse<List<DrugDTO>> response = new ApiResponse<>();
         try {
             List<Drugs> drugs = mainDrugRepository.findByDrugNameContainingIgnoreCase(name);
-            response.setData(drugs);
+            List<DrugDTO> dtoList = new ArrayList<>();
+            for (Drugs d : drugs) {
+                dtoList.add(drugToDto(d));
+            }
+            response.setData(dtoList);
             response.setMessage("Drugs found with name containing: " + name);
             response.setStatus(true);
             response.setStatusCode(200);
@@ -211,57 +226,57 @@ public class DrugService {
         }
         return response;
     }
+}
 
     // Get branches that have the drug
 
-    public ApiResponse<InventoryDrugDTO> updateDrug(String drugId, InventoryDrugDTO inventoryDrugDto, Long userId) {
-        ApiResponse<InventoryDrugDTO> response = new ApiResponse<>();
-
-        Optional<InventoryDrug> existingDrugOpt = inventoryDrugRepository.findById(drugId);
-        if (existingDrugOpt.isEmpty()) {
-            response.setMessage("Drug not found");
-            response.setStatusCode(404);
-            response.setStatus(false);
-            return response;
-        }
-
-        InventoryDrug existingInventoryDrug = existingDrugOpt.get();
-
-        if (!checkAuth.checkAuthToBranch(userId, existingInventoryDrug.getBranchId())) {
-            response.setMessage("Unauthorized");
-            response.setStatusCode(401);
-            response.setStatus(false);
-            return response;
-        }
-
-        if (!existingInventoryDrug.getBranchId().equals(inventoryDrugDto.getBranchId())) {
-            Optional<Branch> branchOpt = branchRepository.findById(inventoryDrugDto.getBranchId());
-            if (branchOpt.isEmpty()) {
-                response.setMessage("Branch not found");
-                response.setStatusCode(404);
-                response.setStatus(false);
-                return response;
-            }
-        }
-
-        ApiResponse<Boolean> checkActiveIngredient = activeIngredientService.checkDrugActiveIngredient(inventoryDrugDto.getActiveIngredientId(), inventoryDrugDto.getDrugId());
-        if (!checkActiveIngredient.getData()) {
-            response.setMessage(checkActiveIngredient.getMessage());
-            response.setStatusCode(checkActiveIngredient.getStatusCode());
-            response.setStatus(false);
-            return response;
-        }
-
-        existingInventoryDrug.setDrugId(inventoryDrugDto.getDrugId());
-        existingInventoryDrug.setCategoryId(inventoryDrugDto.getCategoryId());
-        existingInventoryDrug.setActiveIngredientId(inventoryDrugDto.getActiveIngredientId());
-        existingInventoryDrug.setPrice(inventoryDrugDto.getPrice());
-        existingInventoryDrug.setStock(inventoryDrugDto.getStock());
-        existingInventoryDrug.setBranchId(inventoryDrugDto.getBranchId());
-
-        response.setData(drugToDto(inventoryDrugRepository.save(existingInventoryDrug)));
-        response.setStatus(true);
-        response.setMessage("Drug updated successfully");
-        return response;
-    }
-}
+//    public ApiResponse<InventoryDrugDTO> updateDrug(Long drugId, InventoryDrugDTO inventoryDrugDto, Long userId) {
+//        ApiResponse<InventoryDrugDTO> response = new ApiResponse<>();
+//
+//        Optional<InventoryDrug> existingDrugOpt = inventoryDrugRepository.findById(drugId);
+//        if (existingDrugOpt.isEmpty()) {
+//            response.setMessage("Drug not found");
+//            response.setStatusCode(404);
+//            response.setStatus(false);
+//            return response;
+//        }
+//
+//        InventoryDrug existingInventoryDrug = existingDrugOpt.get();
+//
+//        if (!checkAuth.checkAuthToBranch(userId, existingInventoryDrug.getBranch().getBranchId())) {
+//            response.setMessage("Unauthorized");
+//            response.setStatusCode(401);
+//            response.setStatus(false);
+//            return response;
+//        }
+//
+//        if (!existingInventoryDrug.getBranch().getBranchId().equals(inventoryDrugDto.getBranch().getBranchId())) {
+//            Optional<Branch> branchOpt = branchRepository.findById(inventoryDrugDto.getBranch().getBranchId());
+//            if (branchOpt.isEmpty()) {
+//                response.setMessage("Branch not found");
+//                response.setStatusCode(404);
+//                response.setStatus(false);
+//                return response;
+//            }
+//        }
+//
+//        ApiResponse<Boolean> checkActiveIngredient = activeIngredientService.checkDrugActiveIngredient(inventoryDrugDto.getDrug().getActiveIngredient().getId(), inventoryDrugDto.getDrug().getId());
+//        if (!checkActiveIngredient.getData()) {
+//            response.setMessage(checkActiveIngredient.getMessage());
+//            response.setStatusCode(checkActiveIngredient.getStatusCode());
+//            response.setStatus(false);
+//            return response;
+//        }
+//
+//        existingInventoryDrug.setDrug(inventoryDrugDto.getDrug());
+//
+//        existingInventoryDrug.setPrice(inventoryDrugDto.getPrice());
+//        existingInventoryDrug.setStock(inventoryDrugDto.getStock());
+//        existingInventoryDrug.setBranch(DtoConverter.branchDTOToBranch(inventoryDrugDto.getBranch()));
+//
+//        response.setData(inventoryDrugToDto(inventoryDrugRepository.save(existingInventoryDrug)));
+//        response.setStatus(true);
+//        response.setMessage("Drug updated successfully");
+//        return response;
+//    }
+//}

@@ -43,7 +43,7 @@ public class SecurityConfig {
         httpSecurity.authorizeHttpRequests(request -> request
                 .requestMatchers
                         ("/api/**","/api/wishlist","api/**","/api/categories","api/signup/client","api/signup/create/admin",
-                                "api/login","send-email",
+                                "api/login","send-email","/api/signup/client",
                                 "api/signup/company","/api/fetch","/swagger-ui/index.html","/swagger-ui/swagger-config","/swagger-ui/*").permitAll()
                 .anyRequest().authenticated()
         );

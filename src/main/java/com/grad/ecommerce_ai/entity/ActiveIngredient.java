@@ -1,23 +1,28 @@
 package com.grad.ecommerce_ai.entity;
 
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
 
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@Document(collection = "active_ingredient")
+@Entity
+@Table(name = "active_ingredient")
 public class ActiveIngredient {
     @Id
-    private String id;
-    @Field("activeIngredient")
-    private String activeIngredient;
-    @Field("ingredientArabicName")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false) // ✅ Added constraint
+    private String activeIngredientName;
+
     private String ingredientArabicName;
     private String description;
+
+    @OneToMany(mappedBy = "activeIngredient", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Drugs> drugs;
 }

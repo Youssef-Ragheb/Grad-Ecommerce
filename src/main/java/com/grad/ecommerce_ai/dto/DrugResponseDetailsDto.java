@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 public class DrugResponseDetailsDto {
-    private String drugId;
+    private Long drugId;
     private String drugName;
     private String categoryName;
     private String activeIngredients;

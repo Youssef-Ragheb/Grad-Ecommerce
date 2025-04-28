@@ -1,12 +1,17 @@
 package com.grad.ecommerce_ai.service;
 
 import com.grad.ecommerce_ai.dto.ApiResponse;
+import com.grad.ecommerce_ai.dto.CategoryDTO;
 import com.grad.ecommerce_ai.entity.Category;
 import com.grad.ecommerce_ai.repository.CategoryRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import static com.grad.ecommerce_ai.mappers.DtoConverter.categoryDtoToCategory;
+import static com.grad.ecommerce_ai.mappers.DtoConverter.categoryToDto;
 
 @Service
 public class CategoryService {
@@ -20,16 +25,16 @@ public class CategoryService {
     }
 
     // Create a new category with token-based admin validation
-    public ApiResponse<Category> createCategory(Category category, String token) {
-        ApiResponse<Category> apiResponse = new ApiResponse<>();
+    public ApiResponse<CategoryDTO> createCategory(CategoryDTO category, String token) {
+        ApiResponse<CategoryDTO> apiResponse = new ApiResponse<>();
 
         // Check if the user is admin
-//        if (!jwtTokenUtil.isAdmin(token)) {
-//            apiResponse.setStatusCode(403);
-//            apiResponse.setMessage("Access denied: only admins can create categories");
-//            apiResponse.setStatus(false);
-//            return apiResponse;
-//        }
+        if (!jwtTokenUtil.isAdmin(token)) {
+            apiResponse.setStatusCode(403);
+            apiResponse.setMessage("Access denied: only admins can create categories");
+            apiResponse.setStatus(false);
+            return apiResponse;
+        }
 
         // Check if category name already exists
         if (categoryRepository.existsByCategoryName(category.getCategoryName())) {
@@ -40,8 +45,9 @@ public class CategoryService {
         }
 
         // Save the new category
-        Category savedCategory = categoryRepository.save(category);
-        apiResponse.setData(savedCategory);
+        Category savedCategory = categoryRepository.save(categoryDtoToCategory(category));
+
+        apiResponse.setData(categoryToDto(savedCategory));
         apiResponse.setStatusCode(201);
         apiResponse.setMessage("Category created successfully");
         apiResponse.setStatus(true);
@@ -49,8 +55,8 @@ public class CategoryService {
     }
 
     // Get category by id
-    public ApiResponse<Category> getCategory(String id) {
-        ApiResponse<Category> apiResponse = new ApiResponse<>();
+    public ApiResponse<CategoryDTO> getCategory(Long id) {
+        ApiResponse<CategoryDTO> apiResponse = new ApiResponse<>();
         Optional<Category> categoryOpt = categoryRepository.findById(id);
 
         if (categoryOpt.isEmpty()) {
@@ -60,16 +66,21 @@ public class CategoryService {
             return apiResponse;
         }
 
-        apiResponse.setData(categoryOpt.get());
+        apiResponse.setData(categoryToDto(categoryOpt.get()));
         apiResponse.setStatusCode(200);
         apiResponse.setMessage("Category retrieved successfully");
         apiResponse.setStatus(true);
         return apiResponse;
     }
-    public ApiResponse<List<Category>> getAllCategories(){
-        ApiResponse<List<Category>> apiResponse = new ApiResponse<>();
+    public ApiResponse<List<CategoryDTO>> getAllCategories(){
+        ApiResponse<List<CategoryDTO>> apiResponse = new ApiResponse<>();
         List<Category> categoryList = categoryRepository.findAll();
-        apiResponse.setData(categoryList);
+        List<CategoryDTO> categoryDTOList = new ArrayList<>();
+        for (Category category : categoryList) {
+            CategoryDTO categoryDTO = categoryToDto(category);
+            categoryDTOList.add(categoryDTO);
+        }
+        apiResponse.setData(categoryDTOList);
         apiResponse.setStatusCode(200);
         apiResponse.setMessage("Category list retrieved successfully");
         apiResponse.setStatus(true);
@@ -77,8 +88,8 @@ public class CategoryService {
     }
 
     // Update category with token-based admin validation
-    public ApiResponse<Category> updateCategory(String id, Category updatedCategory, String token) {
-        ApiResponse<Category> apiResponse = new ApiResponse<>();
+    public ApiResponse<CategoryDTO> updateCategory(Long id, CategoryDTO updatedCategory, String token) {
+        ApiResponse<CategoryDTO> apiResponse = new ApiResponse<>();
 
         // Check if the user is admin
         if (!jwtTokenUtil.isAdmin(token)) {
@@ -100,11 +111,11 @@ public class CategoryService {
         // Update the category fields
         Category existingCategory = existingCategoryOpt.get();
         existingCategory.setCategoryName(updatedCategory.getCategoryName());
-        existingCategory.setLogo(updatedCategory.getLogo());
+        existingCategory.setLogo(updatedCategory.getLogoUrl());
 
         // Save the updated category
         Category savedCategory = categoryRepository.save(existingCategory);
-        apiResponse.setData(savedCategory);
+        apiResponse.setData(categoryToDto(savedCategory));
         apiResponse.setStatusCode(200);
         apiResponse.setMessage("Category updated successfully");
         apiResponse.setStatus(true);
@@ -112,7 +123,7 @@ public class CategoryService {
     }
 
     // Delete category with token-based admin validation
-    public ApiResponse<Void> deleteCategory(String id, String token) {
+    public ApiResponse<Void> deleteCategory(Long id, String token) {
         ApiResponse<Void> apiResponse = new ApiResponse<>();
 
         // Check if the user is admin

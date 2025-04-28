@@ -4,8 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
-public class ActiveIngredientDto {
-    private String id;
+public class ActiveIngredientDTO {
+    private Long id;
     @NotBlank
     private String ActiveIngredient;
     @NotBlank

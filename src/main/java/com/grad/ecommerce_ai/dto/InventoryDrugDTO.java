@@ -1,21 +1,18 @@
 package com.grad.ecommerce_ai.dto;
 
+import com.grad.ecommerce_ai.entity.Drugs;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
 public class InventoryDrugDTO {
-    private String id;
+    private Long id;
     @NotBlank
-    private String drugId;
-    @NotBlank
-    private String categoryId;
-    @NotBlank
-    private String activeIngredientId;
+    private DrugDTO drugDTO;
     @NotBlank
     private float price;
     @NotBlank
     private int stock;
     @NotBlank
-    private Long branchId;
+    private BranchDTO branchDTO;
 }

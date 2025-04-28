@@ -1,5 +1,6 @@
 package com.grad.ecommerce_ai.dto;
 
+import com.grad.ecommerce_ai.entity.Drugs;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -7,13 +8,11 @@ import lombok.Data;
 @Data
 public class ItemDTO {
     @Id
-    private String id;
+    private Long id;
 
-    private String orderId;
-    @NotNull
-    private String drugId;
+    private DrugDTO drugDTO;
 
-    private float price;
+    private float unitPrice;
     @NotNull
     private int quantity;
 

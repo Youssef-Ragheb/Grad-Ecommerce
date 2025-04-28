@@ -3,7 +3,7 @@ package com.grad.ecommerce_ai.controller;
 import com.grad.ecommerce_ai.dto.ApiResponse;
 import com.grad.ecommerce_ai.dto.BranchDTO;
 import com.grad.ecommerce_ai.dto.DrugResponseDetailsDto;
-import com.grad.ecommerce_ai.dto.DrugResponseDto;
+import com.grad.ecommerce_ai.dto.DrugResponseDTO;
 import com.grad.ecommerce_ai.service.DrugResponseToClientService;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,26 +22,26 @@ public class DrugViewController {
     }
 
     // Get all branches that have a specific drug
-    @GetMapping("/{drugId}/branches")
-    public ApiResponse<List<BranchDTO>> getBranchesHaveDrug(@PathVariable String drugId) {
-        return drugResponseService.getBranchesHaveDrug(drugId);
-    }
+//    @GetMapping("/{drugId}/branches")
+//    public ApiResponse<List<BranchDTO>> getBranchesHaveDrug(@PathVariable String drugId) {
+//        return drugResponseService.getBranchesHaveDrug(drugId);
+//    }
 
     // Get all drugs in a specific category
     @GetMapping("/category/{categoryId}")
-    public ApiResponse<List<DrugResponseDto>> getDrugsWithCategory(@PathVariable String categoryId) {
+    public ApiResponse<List<DrugResponseDTO>> getDrugsWithCategory(@PathVariable Long categoryId) {
         return drugResponseService.getDrugsWithCategory(categoryId);
     }
 
     // Search for drugs by drug name
     @GetMapping("/search")
-    public ApiResponse<List<DrugResponseDto>> searchDrugsByName(@RequestParam("name") String drugName) {
+    public ApiResponse<List<DrugResponseDTO>> searchDrugsByName(@RequestParam("name") String drugName) {
         return drugResponseService.getDrugsByDrugName(drugName);
     }
 
     // Get detailed view of a specific drug by its ID
     @GetMapping("/{drugId}/details")
-    public ApiResponse<DrugResponseDetailsDto> getDrugDetails(@PathVariable String drugId) {
+    public ApiResponse<DrugResponseDetailsDto> getDrugDetails(@PathVariable Long drugId) {
         return drugResponseService.getDrugDetailsView(drugId);
     }
 }

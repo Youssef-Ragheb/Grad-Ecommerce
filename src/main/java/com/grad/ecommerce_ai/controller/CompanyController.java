@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/company")
@@ -61,6 +62,10 @@ public class CompanyController {
     public ResponseEntity<ApiResponse<List<BranchDTO>>> getAllBranches(@PathVariable Long id) {
         ApiResponse<List<BranchDTO>> response = companyService.getCompanyBranches(id);
         return ResponseEntity.status(response.getStatusCode()).body(response);
+    }
+    @GetMapping("/get/by-branch/{branchId}")
+    public ApiResponse<CompanyDTO> getCompanyByBranch(@PathVariable Long branchId) {
+        return companyService.getCompanyByBranchId(branchId);
     }
 }
 

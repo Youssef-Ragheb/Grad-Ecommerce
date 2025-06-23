@@ -2,15 +2,18 @@ package com.grad.ecommerce_ai.service;
 
 import com.grad.ecommerce_ai.dto.ApiResponse;
 import com.grad.ecommerce_ai.dto.BranchDTO;
+import com.grad.ecommerce_ai.dto.BranchWithEmployeesDTO;
 import com.grad.ecommerce_ai.entity.Branch;
 import com.grad.ecommerce_ai.entity.Company;
 import com.grad.ecommerce_ai.entity.InventoryDrug;
-import com.grad.ecommerce_ai.repository.BranchRepository;
-import com.grad.ecommerce_ai.repository.CompanyRepository;
-import com.grad.ecommerce_ai.repository.InventoryDrugRepository;
+import com.grad.ecommerce_ai.entity.User;
+import com.grad.ecommerce_ai.entity.details.CompanyDetails;
+import com.grad.ecommerce_ai.entity.details.EmployeeDetails;
+import com.grad.ecommerce_ai.repository.*;
 import com.grad.ecommerce_ai.utils.CheckAuth;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -24,13 +27,19 @@ public class BranchService {
     private final CheckAuth checkAuth;
     private final JwtService jwtService;
     private final InventoryDrugRepository inventoryDrugRepository;
+    private final UserRepository userRepository;
+    private final CompanyDetailsRepository companyDetailsRepository;
+    private final EmployeeDetailsRepository employeeDetailsRepository;
 
-    public BranchService(BranchRepository branchRepository, CompanyRepository companyRepository, CheckAuth checkAuth, JwtService jwtService, InventoryDrugRepository inventoryDrugRepository) {
+    public BranchService(BranchRepository branchRepository, CompanyRepository companyRepository, CheckAuth checkAuth, JwtService jwtService, InventoryDrugRepository inventoryDrugRepository, UserRepository userRepository, CompanyDetailsRepository companyDetailsRepository, EmployeeDetailsRepository employeeDetailsRepository) {
         this.branchRepository = branchRepository;
         this.companyRepository = companyRepository;
         this.checkAuth = checkAuth;
         this.jwtService = jwtService;
         this.inventoryDrugRepository = inventoryDrugRepository;
+        this.userRepository = userRepository;
+        this.companyDetailsRepository = companyDetailsRepository;
+        this.employeeDetailsRepository = employeeDetailsRepository;
     }
 
     public ApiResponse<List<BranchDTO>> getAllBranches() {
@@ -91,7 +100,7 @@ public class BranchService {
 //        }
 
         Branch branch = dtoToBranch(branchDTO);
-
+        System.out.println(branch.toString());
         branch.setCompany(optionalCompany.get());
 
         // Check if a branch with the same name exists within the same company
@@ -212,6 +221,67 @@ public class BranchService {
         return apiResponse;
     }
 
+    public ApiResponse<List<BranchWithEmployeesDTO>> getBranchWithEmployeesByCompanyId(String token) {
+        ApiResponse<List<BranchWithEmployeesDTO>> apiResponse = new ApiResponse<>();
+
+        Long userId = jwtService.extractUserId(token);
+
+        User user = userRepository.findById(userId).orElseThrow();
+
+        CompanyDetails companyDetails = companyDetailsRepository.findByUser(user).orElseThrow();
+
+        Optional<Company> company = companyRepository.findById(companyDetails.getCompany().getCompanyId());
+        if (company.isEmpty()) {
+            apiResponse.setMessage("Company not found");
+            apiResponse.setStatusCode(404);
+            apiResponse.setStatus(false);
+            return apiResponse;
+        }
+        List<Branch> branches = company.get().getBranchList();
+
+        List<BranchWithEmployeesDTO> branchWithEmployeesDTOs = new ArrayList<>();
+        for (Branch branch : branches) {
+            BranchWithEmployeesDTO branchWithEmployeesDTO = new BranchWithEmployeesDTO();
+            branchWithEmployeesDTO.setBranchId(branch.getBranchId());
+            branchWithEmployeesDTO.setBranchName(branch.getBranchName());
+            branchWithEmployeesDTO.setAddress(branch.getAddress());
+            branchWithEmployeesDTO.setCity(branch.getCity());
+            branchWithEmployeesDTO.setPhone(branch.getPhone());
+            branchWithEmployeesDTO.setEmail(branch.getEmail());
+            branchWithEmployeesDTO.setBranchState(branch.getBranchState());
+            branchWithEmployeesDTO.setZip(branch.getZip());
+            branchWithEmployeesDTO.setLat(branch.getLat());
+            branchWithEmployeesDTO.setLng(branch.getLng());
+            if(branch.getCompany()!= null){
+                branchWithEmployeesDTO.setCompanyLogoURl(branch.getCompany().getLogoUrl());
+            }
+            List<User> employees = new ArrayList<>();
+            List<EmployeeDetails> employeeDetailsList = branch.getEmployees();
+            for (EmployeeDetails employeeDetails : employeeDetailsList) {
+                employees.add(employeeDetails.getUser());
+            }
+
+            branchWithEmployeesDTO.setEmployees(employees);
+            branchWithEmployeesDTOs.add(branchWithEmployeesDTO);
+        }
+        apiResponse.setData(branchWithEmployeesDTOs);
+        apiResponse.setStatusCode(200);
+        apiResponse.setStatus(true);
+        return apiResponse;
+    }
+
+public ApiResponse<BranchDTO >getBranchFromEmployeeToken(String token) {
+        ApiResponse<BranchDTO> apiResponse = new ApiResponse<>();
+        Long userId = jwtService.extractUserId(token);
+        User user = userRepository.findById(userId).orElseThrow();
+        EmployeeDetails employeeDetails = employeeDetailsRepository.findByUser(user).orElseThrow();
+        Branch branch = employeeDetails.getBranch();
+        BranchDTO branchDTO = branchToDto(branch);
+        apiResponse.setData(branchDTO);
+        apiResponse.setStatusCode(200);
+        apiResponse.setStatus(true);
+        return apiResponse;
+}
 
     public ApiResponse<BranchDTO> deleteBranch(Long branchId, String token) {
         ApiResponse<BranchDTO> apiResponse = new ApiResponse<>();

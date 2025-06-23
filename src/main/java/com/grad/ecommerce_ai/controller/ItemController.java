@@ -26,7 +26,7 @@ public class ItemController {
 
     // Update an existing item
     @PutMapping("/update/{id}")
-    public ResponseEntity<ApiResponse<Item>> updateItem(@PathVariable String id, @RequestBody @Valid Item item, @RequestHeader String token) {
+    public ResponseEntity<ApiResponse<Item>> updateItem(@PathVariable String id, @RequestBody  Item item, @RequestHeader String token) {
         ApiResponse<Item> response = itemService.updateItem(id, item, token);
         return ResponseEntity.status(response.getStatusCode()).body(response);
     }

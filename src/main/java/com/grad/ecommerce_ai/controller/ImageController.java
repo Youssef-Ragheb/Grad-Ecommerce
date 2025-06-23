@@ -2,6 +2,7 @@ package com.grad.ecommerce_ai.controller;
 
 import com.grad.ecommerce_ai.utils.CloudinaryManager;
 import jakarta.validation.Valid;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,8 +18,8 @@ public class ImageController {
         this.cloudinaryManager = cloudinaryManager;
     }
 
-    @PostMapping("/upload")
-    public ResponseEntity<String> uploadImage(@Valid @RequestBody MultipartFile imageFile) throws IOException {
+    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<String> uploadImage(@RequestParam("imageFile") MultipartFile imageFile) throws IOException {
         String response = cloudinaryManager.uploadImageOnCloud(imageFile);
         return ResponseEntity.ok(response);
     }

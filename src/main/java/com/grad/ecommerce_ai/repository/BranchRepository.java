@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface BranchRepository extends JpaRepository<Branch, Long> {
     //TODO try to get with pharmacy ID
     Optional<List<Branch>> findBranchByCompany(Company company);
+    Optional<List<Branch>> findBranchByCompanyCompanyId(Long id);
 }

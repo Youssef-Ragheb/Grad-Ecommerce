@@ -7,9 +7,8 @@ import com.grad.ecommerce_ai.entity.Branch;
 import com.grad.ecommerce_ai.entity.Company;
 import com.grad.ecommerce_ai.entity.User;
 import com.grad.ecommerce_ai.entity.details.CompanyDetails;
-import com.grad.ecommerce_ai.repository.CompanyDetailsRepository;
-import com.grad.ecommerce_ai.repository.CompanyRepository;
-import com.grad.ecommerce_ai.repository.UserRepository;
+import com.grad.ecommerce_ai.entity.details.EmployeeDetails;
+import com.grad.ecommerce_ai.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -26,15 +25,16 @@ public class CompanyService {
     private final UserRepository userRepository;
     private final CompanyDetailsService companyDetailsService;
     private final CompanyDetailsRepository companyDetailsRepository;
+    private final BranchRepository branchRepository;
 
 
-    public CompanyService(CompanyRepository companyRepository, JwtService jwtService, UserRepository userRepository, CompanyDetailsService companyDetailsService, CompanyDetailsRepository companyDetailsRepository) {
+    public CompanyService(CompanyRepository companyRepository, JwtService jwtService, UserRepository userRepository, CompanyDetailsService companyDetailsService, CompanyDetailsRepository companyDetailsRepository, BranchRepository branchRepository) {
         this.companyRepository = companyRepository;
         this.jwtService = jwtService;
         this.userRepository = userRepository;
         this.companyDetailsService = companyDetailsService;
         this.companyDetailsRepository = companyDetailsRepository;
-
+        this.branchRepository = branchRepository;
     }
     public ApiResponse<CompanyDTO> getCompanyWithToken(String token) {
         ApiResponse<CompanyDTO> response = new ApiResponse<>();
@@ -291,5 +291,14 @@ public class CompanyService {
         apiResponse.setMessage("Company Not Found");
         apiResponse.setStatus(false);
         return apiResponse;
+    }
+    public ApiResponse<CompanyDTO> getCompanyByBranchId(Long branchId) {
+       ApiResponse<CompanyDTO> apiResponse = new ApiResponse<>();
+       Branch branch = branchRepository.findById(branchId).orElseThrow();
+       Company company = companyRepository.findById(branch.getCompany().getCompanyId()).orElseThrow();
+       apiResponse.setData(companyToDto(company));
+       apiResponse.setStatusCode(200);
+       apiResponse.setMessage("Company Data");
+       return apiResponse;
     }
 }

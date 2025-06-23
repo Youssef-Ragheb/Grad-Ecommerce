@@ -16,6 +16,7 @@ import java.util.List;
 @Data
 @Entity
 @Table(name = "branch", indexes = {
+        @Index(name = "idx_branch_company", columnList = "company_id"),
         @Index(name = "idx_branch_name", columnList = "branchName"),
         @Index(name = "idx_branch_email", columnList = "email"),
         @Index(name = "idx_branch_city", columnList = "city"),
@@ -51,7 +52,7 @@ public class Branch {
     private double lat;
     private double lng;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "company_id", nullable = false)
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
     @JsonIgnore

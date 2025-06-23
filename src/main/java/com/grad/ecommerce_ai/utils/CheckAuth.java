@@ -9,6 +9,7 @@ import com.grad.ecommerce_ai.entity.details.EmployeeDetails;
 import com.grad.ecommerce_ai.repository.*;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import static com.grad.ecommerce_ai.entity.UserRoles.*;
@@ -54,7 +55,9 @@ public class CheckAuth {
 
         } else if (userEntity.getUserRoles().equals(ROLE_COMPANY)) {
             Optional<CompanyDetails> companyDetails = companyDetailsRepository.findByUser(userEntity);
-            return companyDetails.filter(details -> branch.getCompany().getCompanyId().equals(details.getCompany().getCompanyId())).isPresent();
+            Company company = companyDetails.get().getCompany();
+            return Objects.equals(company.getCompanyId(), branch.getCompany().getCompanyId());
+            //return companyDetails.filter(details -> branch.getCompany().getCompanyId().equals(details.getCompany().getCompanyId())).isPresent();
 
         } else if (userEntity.getUserRoles().equals(ROLE_EMPLOYEE)) {
             Optional<EmployeeDetails> employeeDetails = employeeDetailsRepository.findByUser(userEntity);

@@ -1,6 +1,7 @@
 package com.grad.ecommerce_ai.controller;
 
 import com.grad.ecommerce_ai.dto.ApiResponse;
+import com.grad.ecommerce_ai.dto.OrderDetailsDTO;
 import com.grad.ecommerce_ai.entity.Cart;
 import com.grad.ecommerce_ai.entity.Order;
 import com.grad.ecommerce_ai.service.OrderService;
@@ -18,10 +19,10 @@ public class OrderController {
         this.orderService = orderService;
     }
 
-    @PostMapping("/save")
-    public ApiResponse<Order> saveOrder(@RequestBody Order order, @RequestHeader String token) {
-        return orderService.saveOrder(order, token);
-    }
+//    @PostMapping("/save")
+//    public ApiResponse<Order> saveOrder(@RequestBody Order order, @RequestHeader String token) {
+//        return orderService.saveOrder(order, token);
+//    }
 
     @GetMapping("/{id}")
     public ApiResponse<Order> getOrder(@PathVariable String id, @RequestHeader String token) {
@@ -37,5 +38,9 @@ public class OrderController {
             , @RequestHeader String token) {
 
         return orderService.createOrder(order, token);
+    }
+    @GetMapping("/details")
+    public ApiResponse<List<OrderDetailsDTO>> getOrderDetails(@RequestParam String orderId) {
+        return orderService.getOrderDetails(orderId);
     }
 }

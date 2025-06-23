@@ -3,14 +3,11 @@ package com.grad.ecommerce_ai.service;
 
 import com.grad.ecommerce_ai.dto.ApiResponse;
 import com.grad.ecommerce_ai.dto.RequestDTO;
-import com.grad.ecommerce_ai.entity.Item;
-import com.grad.ecommerce_ai.entity.Request;
-import com.grad.ecommerce_ai.entity.Status;
-import com.grad.ecommerce_ai.entity.User;
+import com.grad.ecommerce_ai.entity.*;
+import com.grad.ecommerce_ai.entity.details.CompanyDetails;
 import com.grad.ecommerce_ai.entity.details.EmployeeDetails;
-import com.grad.ecommerce_ai.repository.EmployeeDetailsRepository;
-import com.grad.ecommerce_ai.repository.RequestRepository;
-import com.grad.ecommerce_ai.repository.UserRepository;
+import com.grad.ecommerce_ai.repository.*;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -24,14 +21,23 @@ public class RequestService {
     private final EmployeeDetailsRepository employeeDetailsRepository;
     private final UserRepository userRepository;
     private final RequestRepository requestRepository;
+    private final InventoryDrugRepository inventoryDrugRepository;
+    private final CompanyRepository companyRepository;
+    private final CompanyDetailsRepository companyDetailsRepository;
+    private final BranchRepository branchRepository;
+    private final OrderService orderService;
 
 
-    public RequestService(JwtService jwtService, EmployeeDetailsRepository employeeDetailsRepository, UserRepository userRepository, RequestRepository requestRepository) {
+    public RequestService(JwtService jwtService, EmployeeDetailsRepository employeeDetailsRepository, UserRepository userRepository, RequestRepository requestRepository, InventoryDrugRepository inventoryDrugRepository, CompanyRepository companyRepository, CompanyDetailsRepository companyDetailsRepository, BranchRepository branchRepository, OrderService orderService) {
         this.jwtService = jwtService;
         this.employeeDetailsRepository = employeeDetailsRepository;
         this.userRepository = userRepository;
         this.requestRepository = requestRepository;
-
+        this.inventoryDrugRepository = inventoryDrugRepository;
+        this.companyRepository = companyRepository;
+        this.companyDetailsRepository = companyDetailsRepository;
+        this.branchRepository = branchRepository;
+        this.orderService = orderService;
     }
 
     public List<Request> createBranchRequests(List<Item> orderItems, List<Long> branchIds, Map<Long, Map<String, Integer>> branchInventories) {
@@ -63,6 +69,24 @@ public class RequestService {
         }
 
         return requests;
+    }
+
+    public ApiResponse<List<RequestDTO>> listBranchRequestsByCompany(Long branchId) {
+        ApiResponse<List<RequestDTO>> apiResponse = new ApiResponse<>();
+
+        List<Request> requests = requestRepository.findByBranchId(branchId);
+
+        List<RequestDTO> requestDTOS = new ArrayList<>();
+        for (Request request : requests) {
+            User user = userRepository.findById(request.getCustomerId()).orElseThrow();
+            RequestDTO dto = toRequestDTO(request, user);
+            requestDTOS.add(dto);
+        }
+        apiResponse.setData(requestDTOS);
+        apiResponse.setStatus(true);
+        apiResponse.setMessage("Success");
+        apiResponse.setStatusCode(200);
+        return apiResponse;
     }
 
     public ApiResponse<List<RequestDTO>> listBranchRequests(String token) {
@@ -98,6 +122,7 @@ public class RequestService {
         return apiResponse;
     }
 
+    @Transactional
     public ApiResponse<RequestDTO> updateRequestFromBranch(RequestDTO requestUpdated, String token) {
         ApiResponse<RequestDTO> apiResponse = new ApiResponse<>();
         Long userId = jwtService.extractUserId(token);
@@ -108,6 +133,7 @@ public class RequestService {
             apiResponse.setStatus(false);
             return apiResponse;
         }
+
         Optional<EmployeeDetails> employeeDetails = employeeDetailsRepository.findByUser(userOptional.get());
         if (employeeDetails.isEmpty()) {
             apiResponse.setMessage("Do not have access");
@@ -115,6 +141,7 @@ public class RequestService {
             apiResponse.setStatus(false);
             return apiResponse;
         }
+
         Optional<Request> request = requestRepository.findById(requestUpdated.getId());
         if (request.isEmpty()) {
             apiResponse.setMessage("Request not found");
@@ -129,15 +156,135 @@ public class RequestService {
             apiResponse.setStatus(false);
             return apiResponse;
         }
+
         Request newRequest = request.get();
         newRequest.setStatus(requestUpdated.getStatus());
+
+        if (Status.SHIPPED.equals(requestUpdated.getStatus())) {
+            List<String> inventoryDrugIds = new ArrayList<>();
+            HashMap<String, Integer> mapOfInventoryDrugsAndQuantity = new HashMap<>();
+            for (Item item : request.get().getItems()) {
+                inventoryDrugIds.add(item.getDrugId());
+                mapOfInventoryDrugsAndQuantity.put(item.getDrugId(), item.getQuantity());
+            }
+
+            List<InventoryDrug> inventoryDrugList = inventoryDrugRepository.findAllByBranchIdAndDrugIdIn(requestUpdated.getBranchId(), inventoryDrugIds);
+            for (InventoryDrug inventoryDrug : inventoryDrugList) {
+                int quantity = mapOfInventoryDrugsAndQuantity.get(inventoryDrug.getDrugId());
+                if (inventoryDrug.getStock() < quantity) {
+                    apiResponse.setMessage("Insufficient stock for drug " + inventoryDrug.getDrugName());
+                    apiResponse.setStatus(false);
+                    apiResponse.setStatusCode(400);
+                    return apiResponse;
+                }
+                inventoryDrug.setStock(inventoryDrug.getStock() - quantity);
+                inventoryDrugRepository.save(inventoryDrug);
+            }
+
+
+        }
+
+
         User client = userRepository.findById(request.get().getCustomerId()).orElseThrow();
+        //check to update order status
         requestRepository.save(newRequest);
         apiResponse.setMessage("Success");
         apiResponse.setStatusCode(200);
         apiResponse.setStatus(true);
         apiResponse.setData(toRequestDTO(newRequest, client));
+        orderService.updateOrder(requestUpdated.getOrderId());
+        //webSocketService.sendOrderStatusUpdate(requestUpdated.getOrderId(), newRequest.getStatus());
         return apiResponse;
     }
 
+    @Transactional
+    public ApiResponse<RequestDTO> updateRequestFromCompany(RequestDTO requestUpdated, String token) {
+        ApiResponse<RequestDTO> apiResponse = new ApiResponse<>();
+
+        Long userId = jwtService.extractUserId(token);
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (userOptional.isEmpty()) {
+            apiResponse.setMessage("User not found");
+            apiResponse.setStatusCode(404);
+            apiResponse.setStatus(false);
+            return apiResponse;
+        }
+
+        Optional<CompanyDetails> companyDetails = companyDetailsRepository.findByUser(userOptional.get());
+        if (companyDetails.isEmpty()) {
+            apiResponse.setMessage("Company not found");
+            apiResponse.setStatusCode(404);
+            apiResponse.setStatus(false);
+            return apiResponse;
+        }
+
+        Optional<Request> request = requestRepository.findById(requestUpdated.getId());
+        if (request.isEmpty()) {
+            apiResponse.setMessage("Request not found");
+            apiResponse.setStatusCode(404);
+            apiResponse.setStatus(false);
+            return apiResponse;
+        }
+
+        boolean notFound = true;
+        Optional<List<Branch>> branchList = branchRepository.findBranchByCompanyCompanyId(companyDetails.get()
+                .getCompany().getCompanyId());
+        for (Branch branch : branchList.get()) {
+            if(branch.getBranchId().equals(requestUpdated.getBranchId())){
+                notFound = false;
+                break;
+            }
+        }
+        if(notFound){
+            apiResponse.setMessage("Do not have access to the branch");
+            apiResponse.setStatusCode(401);
+            apiResponse.setStatus(false);
+            return apiResponse;
+        }
+        Request newRequest = request.get();
+        newRequest.setStatus(requestUpdated.getStatus());
+
+        if (Status.SHIPPED.equals(requestUpdated.getStatus())) {
+            List<String> inventoryDrugIds = new ArrayList<>();
+            HashMap<String, Integer> mapOfInventoryDrugsAndQuantity = new HashMap<>();
+            for (Item item : request.get().getItems()) {
+                inventoryDrugIds.add(item.getDrugId());
+                mapOfInventoryDrugsAndQuantity.put(item.getDrugId(), item.getQuantity());
+            }
+
+            List<InventoryDrug> inventoryDrugList = inventoryDrugRepository.findAllByBranchIdAndDrugIdIn(requestUpdated.getBranchId(), inventoryDrugIds);
+            for (InventoryDrug inventoryDrug : inventoryDrugList) {
+                int quantity = mapOfInventoryDrugsAndQuantity.get(inventoryDrug.getDrugId());
+                if (inventoryDrug.getStock() < quantity) {
+                    apiResponse.setMessage("Insufficient stock for drug " + inventoryDrug.getDrugName());
+                    apiResponse.setStatus(false);
+                    apiResponse.setStatusCode(400);
+                    return apiResponse;
+                }
+                inventoryDrug.setStock(inventoryDrug.getStock() - quantity);
+                inventoryDrugRepository.save(inventoryDrug);
+            }
+        }
+
+        User client = userRepository.findById(request.get().getCustomerId()).orElseThrow();
+        //check to update order status
+        requestRepository.save(newRequest);
+        apiResponse.setMessage("Success");
+        apiResponse.setStatusCode(200);
+        apiResponse.setStatus(true);
+        apiResponse.setData(toRequestDTO(newRequest, client));
+        orderService.updateOrder(requestUpdated.getOrderId());
+        //webSocketService.sendOrderStatusUpdate(requestUpdated.getOrderId(), newRequest.getStatus());
+        return apiResponse;
+
+    }
+
+
+
+
+
+
+
 }
+
+

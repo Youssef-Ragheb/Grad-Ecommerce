@@ -41,7 +41,18 @@ public class CartService {
         }
         Cart cart = cartOptional.get();
         List<Item> items = cart.getItems();
-        items.add(item);
+        boolean found = false;
+        for(Item item1 : items){
+           if(item1.getDrugId().equals(item.getDrugId())){
+               found = true;
+               item1.setQuantity(item1.getQuantity() + item.getQuantity());
+
+           }
+        }
+        if(!found){
+            items.add(item);
+        }
+
         cart.setItems(items);
         response.setData(cartRepository.save(cart));
         response.setStatusCode(200);

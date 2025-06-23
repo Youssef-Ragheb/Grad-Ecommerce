@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -232,8 +233,124 @@ public class UserService {
         Long userId = jwtService.extractUserId(token.getToken());
         User user = userRepository.findById(userId).orElse(null);
         //assert user != null;
+        response.setMessage("Role: "+user.getUserRoles());
+        response.setStatus(true);
         response.setData(user.getUserRoles().toString());
         response.setStatusCode(200);
         return response;
+    }
+
+    public ApiResponse<UserDTO> getUserDetails(String token){
+        ApiResponse<UserDTO> response = new ApiResponse<>();
+        Long  userId = jwtService.extractUserId(token);
+        User userOptional = userRepository.findById(userId).orElseThrow();
+        UserDTO userDTO = userToDto(userOptional);
+        response.setData(userDTO);
+        response.setStatusCode(200);
+        response.setMessage("User Details: ");
+        response.setStatus(true);
+        return response;
+    }
+    public ApiResponse<UserDTO> updateUserDetails(String token, UserDTO userDTO, String currentPassword) {
+        ApiResponse<UserDTO> response = new ApiResponse<>();
+        Long userId = jwtService.extractUserId(token);
+        User user = userRepository.findById(userId).orElse(null);
+
+        if (user == null) {
+            response.setStatus(false);
+            response.setStatusCode(404);
+            response.setMessage("User not found");
+            return response;
+        }
+
+        // Check current password using BCrypt.matches instead of encoding & comparing
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        if (!encoder.matches(currentPassword, user.getPassword())) {
+            response.setStatus(false);
+            response.setStatusCode(400);
+            response.setMessage("Password does not match");
+            return response;
+        }
+
+        // Update only non-null fields
+        if (userDTO.getFirstName() != null) user.setFirstName(userDTO.getFirstName());
+        if (userDTO.getLastName() != null) user.setLastName(userDTO.getLastName());
+        //if(userDTO.getPassword() != null) user.setPassword(encodePassword(userDTO.getPassword()));
+        if (userDTO.getPhone() != null) user.setPhone(userDTO.getPhone());
+        if (userDTO.getAddress() != null) user.setAddress(userDTO.getAddress());
+        if (userDTO.getCity() != null) user.setCity(userDTO.getCity());
+        if (userDTO.getGender() != null) user.setGender(userDTO.getGender());
+
+        // You could allow updating password too (optional):
+        // if (userDTO.getPassword() != null) user.setPassword(encoder.encode(userDTO.getPassword()));
+
+        User updatedUser = userRepository.save(user);
+
+        response.setStatus(true);
+        response.setStatusCode(200);
+        response.setMessage("Profile updated successfully");
+        response.setData(userToDto(updatedUser));
+        return response;
+    }
+
+    public ApiResponse<Boolean> checkPassword(String password,String token){
+        ApiResponse<Boolean> response = new ApiResponse<>();
+        Long  userId = jwtService.extractUserId(token);
+        User userOptional = userRepository.findById(userId).orElseThrow();
+        String encodedPassword = encodePassword(password);
+        if(!encodedPassword.equals(userOptional.getPassword())){
+            response.setStatus(false);
+            response.setStatusCode(400);
+            response.setMessage("Password does not match");
+            return response;
+        }
+        response.setData(true);
+        response.setStatusCode(200);
+        response.setMessage("Password Matched successfully");
+        return response;
+    }
+
+    public ApiResponse<Boolean> deleteEmployee(String token, Long employeeId){
+        ApiResponse<Boolean> response = new ApiResponse<>();
+        Long userId = jwtService.extractUserId(token);
+        User companyUser = userRepository.findById(userId).orElseThrow();
+        Optional<CompanyDetails> companyDetails = companyDetailsRepository.findByUser(companyUser);
+        if(companyDetails.isEmpty()){
+            response.setStatus(false);
+            response.setStatusCode(400);
+            response.setMessage("Company not found");
+            return response;
+        }
+        User employeeUser = userRepository.findById(employeeId).orElseThrow();
+        Optional<EmployeeDetails> employeeDetails = employeeDetailsRepository.findByUser(employeeUser);
+        if(employeeDetails.isEmpty()){
+            response.setStatus(false);
+            response.setStatusCode(400);
+            response.setMessage("Employee not found");
+            return response;
+        }
+        List<Branch> companyBranches = branchRepository.
+                findBranchByCompany(companyDetails.get().getCompany()).orElseThrow();
+        Long employeeBranchId = employeeDetails.get().getBranch().getBranchId();
+        boolean haveAccess = false;
+        for(Branch branch : companyBranches){
+            if (branch.getBranchId().equals(employeeBranchId)) {
+                haveAccess = true;
+                break;
+            }
+        }
+        if(!haveAccess){
+            response.setStatus(false);
+            response.setStatusCode(400);
+            response.setMessage("Don't have access to delete this employee");
+            return response;
+        }
+        employeeDetailsRepository.delete(employeeDetails.get());
+       userRepository.delete(employeeUser);
+        response.setStatus(true);
+        response.setStatusCode(200);
+        response.setMessage("Employee deleted successfully");
+        return response;
+
     }
 }

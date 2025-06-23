@@ -13,5 +13,6 @@ public interface CompanyDetailsRepository extends JpaRepository<CompanyDetails, 
     Boolean existsByUser(User user);
     Boolean existsByCompany(Company company);
     CompanyDetails findByCompany(Company company);
+
     //CompanyDetails findByUser( User user);
 }

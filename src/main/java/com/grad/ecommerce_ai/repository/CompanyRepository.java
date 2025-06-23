@@ -13,7 +13,10 @@ public interface CompanyRepository extends JpaRepository<Company, Long> {
     //Boolean existsByEmail(String email);
     Boolean existsByCompanyEmail(String email);
     //Boolean existsByPhone(String phone);
+//    @Query("SELECT c FROM Company c LEFT JOIN FETCH c.branchList WHERE c.companyId = :companyId")
+//    Optional<Company> findByIdWithBranches(@Param("companyId") Long companyId);
     @Query("SELECT c FROM Company c WHERE c.name = :name OR c.companyEmail = :email OR c.phone = :phone")
     Optional<Company> findByNameOrEmailOrPhone(@Param("name") String name, @Param("email") String email, @Param("phone") String phone);
     Boolean existsByPhone(String phone);
+
 }

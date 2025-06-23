@@ -4,10 +4,7 @@ import com.grad.ecommerce_ai.dto.ApiResponse;
 import com.grad.ecommerce_ai.dto.BranchDTO;
 import com.grad.ecommerce_ai.dto.DrugResponseDetailsDto;
 import com.grad.ecommerce_ai.dto.DrugResponseDto;
-import com.grad.ecommerce_ai.entity.ActiveIngredient;
-import com.grad.ecommerce_ai.entity.Branch;
-import com.grad.ecommerce_ai.entity.Drugs;
-import com.grad.ecommerce_ai.entity.InventoryDrug;
+import com.grad.ecommerce_ai.entity.*;
 import com.grad.ecommerce_ai.repository.*;
 import org.springframework.stereotype.Service;
 
@@ -28,12 +25,14 @@ public class DrugResponseToClientService {
     private final InventoryDrugRepository inventoryDrugRepository;
     private final ActiveIngredientRepository activeIngredientRepository;
     private final BranchRepository branchRepository;
+    private final CategoryRepository categoryRepository;
 
-    public DrugResponseToClientService(MainDrugRepository mainDrugRepository, InventoryDrugRepository inventoryDrugRepository, ActiveIngredientRepository activeIngredientRepository, BranchRepository branchRepository) {
+    public DrugResponseToClientService(MainDrugRepository mainDrugRepository, InventoryDrugRepository inventoryDrugRepository, ActiveIngredientRepository activeIngredientRepository, BranchRepository branchRepository, CategoryRepository categoryRepository) {
         this.mainDrugRepository = mainDrugRepository;
         this.inventoryDrugRepository = inventoryDrugRepository;
         this.activeIngredientRepository = activeIngredientRepository;
         this.branchRepository = branchRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     //TODO view products..
@@ -162,6 +161,8 @@ public class DrugResponseToClientService {
             drugResponseDetailsDto.setDrugName(drug.getDrugName());
             drugResponseDetailsDto.setImageUrl(drug.getLogo());
             drugResponseDetailsDto.setDescription(drug.getDescription());
+            Category category = categoryRepository.findById(drug.getCategoryId()).orElseThrow();
+            drugResponseDetailsDto.setCategoryName(category.getCategoryName());
             float averagePrice;
             //
             List<InventoryDrug> inventoryDrugList = inventoryDrugRepository.findAllByDrugId(drugId);

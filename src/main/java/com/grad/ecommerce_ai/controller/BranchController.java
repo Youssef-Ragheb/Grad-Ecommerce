@@ -2,6 +2,7 @@ package com.grad.ecommerce_ai.controller;
 
 import com.grad.ecommerce_ai.dto.ApiResponse;
 import com.grad.ecommerce_ai.dto.BranchDTO;
+import com.grad.ecommerce_ai.dto.BranchWithEmployeesDTO;
 import com.grad.ecommerce_ai.service.BranchService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -53,6 +54,14 @@ public class BranchController {
     public ResponseEntity<ApiResponse<BranchDTO>> deleteBranch(@PathVariable Long id,@RequestHeader String token) {
         ApiResponse<BranchDTO> response = branchService.deleteBranch(id,token);
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatusCode()));
+    }
+    @GetMapping("/employees")
+    public ApiResponse<List<BranchWithEmployeesDTO>> BranchesWithEmployees(@RequestHeader String token) {
+        return branchService.getBranchWithEmployeesByCompanyId(token);
+    }
+    @GetMapping("branch-for-employee")
+    public ApiResponse<BranchDTO> getBranchForEmployee(@RequestHeader String token) {
+        return branchService.getBranchFromEmployeeToken(token);
     }
 }
 

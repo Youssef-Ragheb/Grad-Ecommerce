@@ -3,7 +3,6 @@ package com.grad.ecommerce_ai.controller;
 import com.grad.ecommerce_ai.dto.ApiResponse;
 import com.grad.ecommerce_ai.dto.TokenDTO;
 import com.grad.ecommerce_ai.dto.UserDTO;
-import com.grad.ecommerce_ai.repository.EmployeeDetailsRepository;
 import com.grad.ecommerce_ai.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,11 +15,10 @@ import java.util.List;
 @RequestMapping("/api/user")
 public class UserController {
     private final UserService userService;
-    private final EmployeeDetailsRepository employeeDetailsRepository;
 
-    public UserController(UserService userService, EmployeeDetailsRepository employeeDetailsRepository) {
+
+    public UserController(UserService userService) {
         this.userService = userService;
-        this.employeeDetailsRepository = employeeDetailsRepository;
     }
 
     @PostMapping("/role")
@@ -52,6 +50,7 @@ public class UserController {
     }
     @PostMapping("/employees/count")
     public Long getEmployeeCount(@RequestBody List<Long> employeeIds){
-        return employeeDetailsRepository.countByBranch_BranchIdIn(employeeIds);
+        return userService.getEmployeeCount(employeeIds);
     }
+
 }

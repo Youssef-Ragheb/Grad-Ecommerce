@@ -353,4 +353,9 @@ public class UserService {
         return response;
 
     }
+    public Long getEmployeeCount(List<Long> employeeIds){
+        return employeeDetailsRepository.countByBranch_BranchIdIn(employeeIds);
+    }
+
+
 }

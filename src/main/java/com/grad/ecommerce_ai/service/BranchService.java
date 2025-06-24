@@ -26,20 +26,20 @@ public class BranchService {
     private final CompanyRepository companyRepository;
     private final CheckAuth checkAuth;
     private final JwtService jwtService;
-    private final InventoryDrugRepository inventoryDrugRepository;
     private final UserRepository userRepository;
     private final CompanyDetailsRepository companyDetailsRepository;
     private final EmployeeDetailsRepository employeeDetailsRepository;
+    private final InventoryDrugService inventoryDrugService;
 
-    public BranchService(BranchRepository branchRepository, CompanyRepository companyRepository, CheckAuth checkAuth, JwtService jwtService, InventoryDrugRepository inventoryDrugRepository, UserRepository userRepository, CompanyDetailsRepository companyDetailsRepository, EmployeeDetailsRepository employeeDetailsRepository) {
+    public BranchService(BranchRepository branchRepository, CompanyRepository companyRepository, CheckAuth checkAuth, JwtService jwtService, UserRepository userRepository, CompanyDetailsRepository companyDetailsRepository, EmployeeDetailsRepository employeeDetailsRepository, InventoryDrugService inventoryDrugService) {
         this.branchRepository = branchRepository;
         this.companyRepository = companyRepository;
         this.checkAuth = checkAuth;
         this.jwtService = jwtService;
-        this.inventoryDrugRepository = inventoryDrugRepository;
         this.userRepository = userRepository;
         this.companyDetailsRepository = companyDetailsRepository;
         this.employeeDetailsRepository = employeeDetailsRepository;
+        this.inventoryDrugService = inventoryDrugService;
     }
 
     public ApiResponse<List<BranchDTO>> getAllBranches() {
@@ -73,7 +73,7 @@ public class BranchService {
     private boolean checkBranchName(String branchName, Company company) {
         List<Branch> branches = company.getBranchList();
         for (Branch branch : branches) {
-            if(branch.getBranchName().equals(branchName)) {
+            if (branch.getBranchName().equals(branchName)) {
                 return true;
             }
         }
@@ -100,11 +100,11 @@ public class BranchService {
 //        }
 
         Branch branch = dtoToBranch(branchDTO);
-        System.out.println(branch.toString());
+        System.out.println(branch);
         branch.setCompany(optionalCompany.get());
 
         // Check if a branch with the same name exists within the same company
-        if(checkBranchName(branchDTO.getBranchName(), optionalCompany.get())) {
+        if (checkBranchName(branchDTO.getBranchName(), optionalCompany.get())) {
             apiResponse.setMessage("branch name is used before ");
             apiResponse.setStatusCode(400);
             apiResponse.setStatus(false);
@@ -252,7 +252,7 @@ public class BranchService {
             branchWithEmployeesDTO.setZip(branch.getZip());
             branchWithEmployeesDTO.setLat(branch.getLat());
             branchWithEmployeesDTO.setLng(branch.getLng());
-            if(branch.getCompany()!= null){
+            if (branch.getCompany() != null) {
                 branchWithEmployeesDTO.setCompanyLogoURl(branch.getCompany().getLogoUrl());
             }
             List<User> employees = new ArrayList<>();
@@ -270,7 +270,7 @@ public class BranchService {
         return apiResponse;
     }
 
-public ApiResponse<BranchDTO >getBranchFromEmployeeToken(String token) {
+    public ApiResponse<BranchDTO> getBranchFromEmployeeToken(String token) {
         ApiResponse<BranchDTO> apiResponse = new ApiResponse<>();
         Long userId = jwtService.extractUserId(token);
         User user = userRepository.findById(userId).orElseThrow();
@@ -281,7 +281,7 @@ public ApiResponse<BranchDTO >getBranchFromEmployeeToken(String token) {
         apiResponse.setStatusCode(200);
         apiResponse.setStatus(true);
         return apiResponse;
-}
+    }
 
     public ApiResponse<BranchDTO> deleteBranch(Long branchId, String token) {
         ApiResponse<BranchDTO> apiResponse = new ApiResponse<>();
@@ -314,7 +314,7 @@ public ApiResponse<BranchDTO >getBranchFromEmployeeToken(String token) {
         }
 
         // Delete related inventory drugs and the branch itself
-        inventoryDrugRepository.deleteAllByBranchId(branchId);
+        inventoryDrugService.deleteInventoryByBranchId(branchId);
         branchRepository.delete(branch);
 
         apiResponse.setMessage("Branch deleted successfully");
@@ -325,14 +325,14 @@ public ApiResponse<BranchDTO >getBranchFromEmployeeToken(String token) {
 
     public ApiResponse<List<InventoryDrug>> getBranchDrugs(Long branchId) {
         ApiResponse<List<InventoryDrug>> apiResponse = new ApiResponse<>();
-        if(!branchRepository.existsById(branchId)) {
+        if (!branchRepository.existsById(branchId)) {
             apiResponse.setStatusCode(200);
             apiResponse.setData(null);
             apiResponse.setMessage("Branch not found");
             apiResponse.setStatus(false);
             return apiResponse;
         }
-        apiResponse.setData(inventoryDrugRepository.findAllByBranchId(branchId));
+        apiResponse.setData(inventoryDrugService.findByBranchId(branchId));
         apiResponse.setStatusCode(200);
         apiResponse.setMessage("drugs found");
         apiResponse.setStatus(true);

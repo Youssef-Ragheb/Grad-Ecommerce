@@ -32,6 +32,11 @@ public class DrugViewController {
     public ApiResponse<List<DrugResponseDto>> getDrugsWithCategory(@PathVariable String categoryId) {
         return drugResponseService.getDrugsWithCategory(categoryId);
     }
+    @GetMapping("/featured-drugs")
+    public ApiResponse<List<DrugResponseDto>> getFeaturedDrugs() {
+        return drugResponseService.getAllDrugs();
+    }
+    //getAllDrugs
 
     // Search for drugs by drug name
     @GetMapping("/search")

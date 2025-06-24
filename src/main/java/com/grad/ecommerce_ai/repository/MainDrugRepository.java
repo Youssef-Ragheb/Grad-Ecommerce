@@ -11,4 +11,5 @@ public interface MainDrugRepository extends MongoRepository<Drugs,String> {
     List<Drugs> findByCategoryId(String id);
     List<Drugs> DrugNameContainingIgnoreCase(String drugName);
     List<Drugs> findByDrugNameContainingIgnoreCase(String drugName);
+    List<Drugs> findByIdIn(List<String> ids);
 }

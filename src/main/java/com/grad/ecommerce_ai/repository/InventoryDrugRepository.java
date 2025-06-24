@@ -21,5 +21,5 @@ public interface InventoryDrugRepository extends MongoRepository<InventoryDrug, 
     List<InventoryDrug> findAllByDrugIdIn(List<String> ids);
     List<InventoryDrug> findAllByBranchIdAndDrugIdIn( Long branchId, List<String> ids);
 
-    Optional<InventoryDrug> findByDrugId(String id);
+    List<InventoryDrug> findByDrugId(String id);
 }

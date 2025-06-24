@@ -22,22 +22,22 @@ public class RequestService {
     private final UserRepository userRepository;
     private final RequestRepository requestRepository;
     private final InventoryDrugRepository inventoryDrugRepository;
-    private final CompanyRepository companyRepository;
     private final CompanyDetailsRepository companyDetailsRepository;
     private final BranchRepository branchRepository;
     private final OrderService orderService;
+    private final InventoryDrugService inventoryDrugService;
 
 
-    public RequestService(JwtService jwtService, EmployeeDetailsRepository employeeDetailsRepository, UserRepository userRepository, RequestRepository requestRepository, InventoryDrugRepository inventoryDrugRepository, CompanyRepository companyRepository, CompanyDetailsRepository companyDetailsRepository, BranchRepository branchRepository, OrderService orderService) {
+    public RequestService(JwtService jwtService, EmployeeDetailsRepository employeeDetailsRepository, UserRepository userRepository, RequestRepository requestRepository, InventoryDrugRepository inventoryDrugRepository, CompanyDetailsRepository companyDetailsRepository, BranchRepository branchRepository, OrderService orderService, InventoryDrugService inventoryDrugService) {
         this.jwtService = jwtService;
         this.employeeDetailsRepository = employeeDetailsRepository;
         this.userRepository = userRepository;
         this.requestRepository = requestRepository;
         this.inventoryDrugRepository = inventoryDrugRepository;
-        this.companyRepository = companyRepository;
         this.companyDetailsRepository = companyDetailsRepository;
         this.branchRepository = branchRepository;
         this.orderService = orderService;
+        this.inventoryDrugService = inventoryDrugService;
     }
 
     public List<Request> createBranchRequests(List<Item> orderItems, List<Long> branchIds, Map<Long, Map<String, Integer>> branchInventories) {
@@ -178,12 +178,11 @@ public class RequestService {
                     return apiResponse;
                 }
                 inventoryDrug.setStock(inventoryDrug.getStock() - quantity);
-                inventoryDrugRepository.save(inventoryDrug);
+                inventoryDrugService.saveInventory(inventoryDrug);
             }
 
 
         }
-
 
         User client = userRepository.findById(request.get().getCustomerId()).orElseThrow();
         //check to update order status
@@ -262,7 +261,7 @@ public class RequestService {
                     return apiResponse;
                 }
                 inventoryDrug.setStock(inventoryDrug.getStock() - quantity);
-                inventoryDrugRepository.save(inventoryDrug);
+                inventoryDrugService.saveInventory(inventoryDrug);
             }
         }
 

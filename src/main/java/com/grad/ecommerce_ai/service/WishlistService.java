@@ -4,7 +4,6 @@ import com.grad.ecommerce_ai.dto.ApiResponse;
 import com.grad.ecommerce_ai.entity.User;
 import com.grad.ecommerce_ai.entity.UserRoles;
 import com.grad.ecommerce_ai.entity.Wishlist;
-import com.grad.ecommerce_ai.repository.MainDrugRepository;
 import com.grad.ecommerce_ai.repository.UserRepository;
 import com.grad.ecommerce_ai.repository.WishlistRepository;
 import org.springframework.stereotype.Service;
@@ -16,14 +15,14 @@ import java.util.Optional;
 public class WishlistService {
     private final JwtService jwtService;
     private final UserRepository userRepository;
-    private final MainDrugRepository mainDrugRepository;
     private final WishlistRepository wishlistRepository;
+    private final DrugService drugService;
 
-    public WishlistService (JwtService jwtService, UserRepository userRepository, MainDrugRepository mainDrugRepository, WishlistRepository wishlistRepository) {
+    public WishlistService(JwtService jwtService, UserRepository userRepository, WishlistRepository wishlistRepository, DrugService drugService) {
         this.jwtService = jwtService;
         this.userRepository = userRepository;
-        this.mainDrugRepository = mainDrugRepository;
         this.wishlistRepository = wishlistRepository;
+        this.drugService = drugService;
     }
 
     public ApiResponse<Wishlist> addWishlist(Wishlist wishlist, String token) {
@@ -45,7 +44,7 @@ public class WishlistService {
             return apiResponse;
         }
         String drugId = wishlist.getDrugId();
-        if (!mainDrugRepository.existsById(drugId)) {
+        if (drugService.findDrug(drugId).isEmpty()) {
             apiResponse.setMessage("drug not found");
             apiResponse.setStatusCode(404);
             apiResponse.setData(null);
@@ -105,7 +104,7 @@ public class WishlistService {
             apiResponse.setStatus(false);
             return apiResponse;
         }
-        if(!wishlistRepository.existsById(wishlist.getId())) {
+        if (!wishlistRepository.existsById(wishlist.getId())) {
             apiResponse.setData(false);
             apiResponse.setStatusCode(404);
             apiResponse.setStatus(false);

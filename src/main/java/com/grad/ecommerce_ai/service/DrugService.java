@@ -1,98 +1,29 @@
 package com.grad.ecommerce_ai.service;
 
 import com.grad.ecommerce_ai.dto.ApiResponse;
-import com.grad.ecommerce_ai.dto.InventoryDrugDTO;
-import com.grad.ecommerce_ai.entity.Branch;
 import com.grad.ecommerce_ai.entity.Drugs;
-import com.grad.ecommerce_ai.entity.InventoryDrug;
-import com.grad.ecommerce_ai.repository.BranchRepository;
-import com.grad.ecommerce_ai.repository.InventoryDrugRepository;
 import com.grad.ecommerce_ai.repository.MainDrugRepository;
-import com.grad.ecommerce_ai.utils.CheckAuth;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
-import static com.grad.ecommerce_ai.mappers.InventoryDrugMapper.*;
-
 @Service
 public class DrugService {
-    private final InventoryDrugRepository inventoryDrugRepository;
-    private final BranchRepository branchRepository;
+    private static final String DRUG_KEY_PREFIX = "DRUG:";
+    private static final String DRUG_ALL_KEY = "DRUG:ALL";
     private final JwtService jwtService;
-    private final ActiveIngredientService activeIngredientService;
-    private final CheckAuth checkAuth;
     private final MainDrugRepository mainDrugRepository;
+    private final RedisTemplate<String, Drugs> redisTemplate;
 
-
-    public DrugService(InventoryDrugRepository inventoryDrugRepository, BranchRepository branchRepository, JwtService jwtService, ActiveIngredientService activeIngredientService, CheckAuth checkAuth, MainDrugRepository mainDrugRepository) {
-        this.inventoryDrugRepository = inventoryDrugRepository;
-        this.branchRepository = branchRepository;
+    public DrugService(JwtService jwtService, MainDrugRepository mainDrugRepository, RedisTemplate<String, Drugs> redisTemplate) {
         this.jwtService = jwtService;
-        this.activeIngredientService = activeIngredientService;
-        this.checkAuth = checkAuth;
         this.mainDrugRepository = mainDrugRepository;
 
-    }
-/*
-    public ApiResponse<InventoryDrugDTO> addDrug(InventoryDrugDTO dragDto, String token) {
-        // TODO get the id from token when we add security
-        ApiResponse<InventoryDrugDTO> response = new ApiResponse<>();
-        Long userId = jwtService.extractUserId(token);
-        Optional<Branch> branch = branchRepository.findById(dragDto.getBranchId());
-        if (branch.isEmpty()) {
-            response.setMessage("Branch not found");
-            response.setStatusCode(404);
-            response.setStatus(false);
-            return response;
-        }
-        Optional<User> user = userRepository.findById(userId);
-        if (user.isEmpty()) {
-            response.setMessage("User not found");
-            response.setStatusCode(404);
-            response.setStatus(false);
-            return response;
-        }
-
-        if (!(checkAuth.checkAuthToBranch(userId, dragDto.getBranchId()))) {
-            response.setMessage("unauthorized");
-            response.setStatusCode(401);
-            response.setStatus(false);
-            return response;
-        }
-        ApiResponse<Boolean> checkActiveIngredient = activeIngredientService.checkDrugActiveIngredient(dragDto.getActiveIngredientId(), dragDto.getDrugId());
-        if (!checkActiveIngredient.getData()) {
-            response.setMessage(checkActiveIngredient.getMessage());
-            response.setStatusCode(checkActiveIngredient.getStatusCode());
-            response.setStatus(false);
-            return response;
-        }
-
-        InventoryDrug inventoryDrug = dtoToDrug(dragDto);
-
-        response.setData(drugToDto(inventoryDrugRepository.save(inventoryDrug)));
-        response.setStatus(true);
-        response.setMessage("Drug Added");
-        return response;
+        this.redisTemplate = redisTemplate;
     }
 
-    public ApiResponse<List<InventoryDrugDTO>> getBranchDrags(Long branchId) {
-        ApiResponse<List<InventoryDrugDTO>> apiResponse = new ApiResponse<>();
-        Optional<Branch> branch = branchRepository.findById(branchId);
-        if (branch.isEmpty()) {
-            apiResponse.setMessage("Branch not found");
-            apiResponse.setStatus(false);
-            apiResponse.setStatusCode(404);
-            return apiResponse;
-        }
-        apiResponse.setData(drugListToDtoList(inventoryDrugRepository.findAllByBranchId(branchId)));
-        apiResponse.setMessage("Drugs found");
-        apiResponse.setStatusCode(200);
-        apiResponse.setStatus(true);
-        return apiResponse;
-    }
-  */
     public ApiResponse<Drugs> addDrugToMain(Drugs drug, String token) {
         ApiResponse<Drugs> apiResponse = new ApiResponse<>();
         if (!jwtService.isAdmin(token)) {
@@ -102,7 +33,7 @@ public class DrugService {
             apiResponse.setStatus(false);
             return apiResponse;
         }
-        apiResponse.setData(mainDrugRepository.save(drug));
+        apiResponse.setData(saveDrug(drug));
         apiResponse.setStatus(true);
         apiResponse.setStatusCode(200);
         apiResponse.setMessage("drug added");
@@ -112,7 +43,7 @@ public class DrugService {
     // Read a single drug by ID
     public ApiResponse<Drugs> getDrugById(String id) {
         ApiResponse<Drugs> apiResponse = new ApiResponse<>();
-        Optional<Drugs> drugOpt = mainDrugRepository.findById(id);
+        Optional<Drugs> drugOpt = findDrug(id);
         if (drugOpt.isEmpty()) {
             apiResponse.setMessage("Drug not found");
             apiResponse.setStatusCode(404);
@@ -129,7 +60,7 @@ public class DrugService {
     // Get a list of all drugs
     public ApiResponse<List<Drugs>> getAllDrugs() {
         ApiResponse<List<Drugs>> apiResponse = new ApiResponse<>();
-        List<Drugs> drugsList = mainDrugRepository.findAll();
+        List<Drugs> drugsList = findAllDrugs();
         apiResponse.setData(drugsList);
         apiResponse.setStatus(true);
         apiResponse.setStatusCode(200);
@@ -148,7 +79,7 @@ public class DrugService {
             return apiResponse;
         }
 
-        Optional<Drugs> existingDrugOpt = mainDrugRepository.findById(id);
+        Optional<Drugs> existingDrugOpt = findDrug(id);
         if (existingDrugOpt.isEmpty()) {
             apiResponse.setMessage("Drug not found");
             apiResponse.setStatusCode(404);
@@ -163,7 +94,7 @@ public class DrugService {
         existingDrug.setDescription(updatedDrug.getDescription());
         existingDrug.setLogo(updatedDrug.getLogo());
 
-        Drugs savedDrug = mainDrugRepository.save(existingDrug);
+        Drugs savedDrug = saveDrug(existingDrug);
         apiResponse.setData(savedDrug);
         apiResponse.setStatus(true);
         apiResponse.setStatusCode(200);
@@ -181,7 +112,7 @@ public class DrugService {
             return apiResponse;
         }
 
-        Optional<Drugs> existingDrugOpt = mainDrugRepository.findById(id);
+        Optional<Drugs> existingDrugOpt = findDrug(id);
         if (existingDrugOpt.isEmpty()) {
             apiResponse.setMessage("Drug not found");
             apiResponse.setStatusCode(404);
@@ -189,12 +120,13 @@ public class DrugService {
             return apiResponse;
         }
 
-        mainDrugRepository.deleteById(id);
+        deleteDrug(id);
         apiResponse.setStatus(true);
         apiResponse.setStatusCode(200);
         apiResponse.setMessage("Drug deleted successfully");
         return apiResponse;
     }
+
     // Method to search drugs by name
     public ApiResponse<List<Drugs>> searchDrugsByName(String name) {
         ApiResponse<List<Drugs>> response = new ApiResponse<>();
@@ -212,56 +144,71 @@ public class DrugService {
         return response;
     }
 
-    // Get branches that have the drug
 
-    public ApiResponse<InventoryDrugDTO> updateDrug(String drugId, InventoryDrugDTO inventoryDrugDto, Long userId) {
-        ApiResponse<InventoryDrugDTO> response = new ApiResponse<>();
+    public Optional<Drugs> findDrug(String id) {
+        String key = DRUG_KEY_PREFIX + id;
+        Drugs cachedDrug = redisTemplate.opsForValue().get(key);
 
-        Optional<InventoryDrug> existingDrugOpt = inventoryDrugRepository.findById(drugId);
-        if (existingDrugOpt.isEmpty()) {
-            response.setMessage("Drug not found");
-            response.setStatusCode(404);
-            response.setStatus(false);
-            return response;
+        if (cachedDrug != null) {
+            return Optional.of(cachedDrug);
         }
 
-        InventoryDrug existingInventoryDrug = existingDrugOpt.get();
-
-        if (!checkAuth.checkAuthToBranch(userId, existingInventoryDrug.getBranchId())) {
-            response.setMessage("Unauthorized");
-            response.setStatusCode(401);
-            response.setStatus(false);
-            return response;
-        }
-
-        if (!existingInventoryDrug.getBranchId().equals(inventoryDrugDto.getBranchId())) {
-            Optional<Branch> branchOpt = branchRepository.findById(inventoryDrugDto.getBranchId());
-            if (branchOpt.isEmpty()) {
-                response.setMessage("Branch not found");
-                response.setStatusCode(404);
-                response.setStatus(false);
-                return response;
-            }
-        }
-
-        ApiResponse<Boolean> checkActiveIngredient = activeIngredientService.checkDrugActiveIngredient(inventoryDrugDto.getActiveIngredientId(), inventoryDrugDto.getDrugId());
-        if (!checkActiveIngredient.getData()) {
-            response.setMessage(checkActiveIngredient.getMessage());
-            response.setStatusCode(checkActiveIngredient.getStatusCode());
-            response.setStatus(false);
-            return response;
-        }
-
-        existingInventoryDrug.setDrugId(inventoryDrugDto.getDrugId());
-        existingInventoryDrug.setCategoryId(inventoryDrugDto.getCategoryId());
-        existingInventoryDrug.setActiveIngredientId(inventoryDrugDto.getActiveIngredientId());
-        existingInventoryDrug.setPrice(inventoryDrugDto.getPrice());
-        existingInventoryDrug.setStock(inventoryDrugDto.getStock());
-        existingInventoryDrug.setBranchId(inventoryDrugDto.getBranchId());
-
-        response.setData(drugToDto(inventoryDrugRepository.save(existingInventoryDrug)));
-        response.setStatus(true);
-        response.setMessage("Drug updated successfully");
-        return response;
+        Optional<Drugs> drug = mainDrugRepository.findById(id);
+        drug.ifPresent(d -> redisTemplate.opsForValue().set(key, d));
+        return drug;
     }
+
+    // Get all drugs (with cache)
+    public List<Drugs> findAllDrugs() {
+        List<Drugs> cachedDrugs = redisTemplate.opsForList().range(DRUG_ALL_KEY, 0, -1);
+        if (cachedDrugs != null && !cachedDrugs.isEmpty()) {
+            return cachedDrugs;
+        }
+
+        List<Drugs> drugs = mainDrugRepository.findAll();
+        redisTemplate.delete(DRUG_ALL_KEY); // clear old data
+        redisTemplate.opsForList().rightPushAll(DRUG_ALL_KEY, drugs);
+        return drugs;
+    }
+
+    // Save drug (update cache and invalidate list)
+    public Drugs saveDrug(Drugs drug) {
+        Drugs saved = mainDrugRepository.save(drug);
+
+        String key = DRUG_KEY_PREFIX + saved.getId();
+        redisTemplate.opsForValue().set(key, saved); // update single
+        redisTemplate.delete(DRUG_ALL_KEY); // force refresh list
+        return saved;
+    }
+
+    public List<Drugs> findDrugsByCategory(String categoryId) {
+        String cacheKey = "DRUG:CATEGORY:" + categoryId;
+
+        // Try to get from Redis first
+        List<Drugs> cachedDrugs = redisTemplate.opsForList().range(cacheKey, 0, -1);
+        if (cachedDrugs != null && !cachedDrugs.isEmpty()) {
+            return cachedDrugs;
+        }
+
+        // If not cached, fetch from DB
+        List<Drugs> drugs = mainDrugRepository.findByCategoryId(categoryId);
+
+        // Cache the result
+        if (!drugs.isEmpty()) {
+            redisTemplate.opsForList().rightPushAll(cacheKey, drugs);
+        }
+
+        return drugs;
+    }
+
+    // Delete drug (remove from Redis too)
+    public void deleteDrug(String id) {
+        mainDrugRepository.deleteById(id);
+
+        redisTemplate.delete(DRUG_KEY_PREFIX + id);
+        redisTemplate.delete(DRUG_ALL_KEY);
+    }
+
+
 }
+

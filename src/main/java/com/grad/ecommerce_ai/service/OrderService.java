@@ -9,6 +9,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -24,23 +25,19 @@ public class OrderService {
     private final CartRepository cartRepository;
     private final ItemService itemService;
     private final RequestRepository requestRepository;
-    private final InventoryDrugRepository inventoryDrugRepository;
     private final ItemRepository itemRepository;
-    private final MainDrugRepository mainDrugRepository;
-    //private final WebSocketService webSocketService;
+    private final DrugService drugService;
 
 
-    public OrderService(OrderRepository orderRepository, JwtService jwtService, UserRepository userRepository, CartRepository cartRepository, @Lazy ItemService itemService, RequestRepository requestRepository, InventoryDrugRepository inventoryDrugRepository, ItemRepository itemRepository, MainDrugRepository mainDrugRepository) {
+    public OrderService(OrderRepository orderRepository, JwtService jwtService, UserRepository userRepository, CartRepository cartRepository, @Lazy ItemService itemService, RequestRepository requestRepository, ItemRepository itemRepository, DrugService drugService) {
         this.orderRepository = orderRepository;
         this.jwtService = jwtService;
         this.userRepository = userRepository;
         this.cartRepository = cartRepository;
         this.itemService = itemService;
         this.requestRepository = requestRepository;
-        this.inventoryDrugRepository = inventoryDrugRepository;
-        // this.webSocketService = webSocketService;
         this.itemRepository = itemRepository;
-        this.mainDrugRepository = mainDrugRepository;
+        this.drugService = drugService;
     }
 
     @Transactional
@@ -79,6 +76,7 @@ public class OrderService {
         newOrder.setRequestsIds(requestIds);
         newOrder.setUserId(userId);
         newOrder.setTotalPrice(orderPrice);
+        newOrder.setOrderDateAndTime(LocalDateTime.now());
         newOrder = orderRepository.save(newOrder);
         // Notify user about the overall order
 //        OrderStatusDTO orderStatusDTO = new OrderStatusDTO(
@@ -183,7 +181,7 @@ public class OrderService {
             dto.setPrice(item.getPrice());
             dto.setQuantity(item.getQuantity());
             dto.setDrugId(item.getDrugId());
-            Drugs drugs = mainDrugRepository.findById(item.getDrugId()).orElse(null);
+            Drugs drugs = drugService.findDrug(item.getDrugId()).orElse(null);
             dto.setDrugName(drugs.getDrugName());
             orderDetailsDTOList.add(dto);
         }
@@ -211,28 +209,35 @@ public class OrderService {
         boolean allReadyOrShipped = true;
         boolean anyPreparing = false;
         boolean anyPending = false;
+        boolean allCanceled = true;
 
         for (Request request : requests) {
             Status status = request.getStatus();
 
-            if (status != Status.SHIPPED) {
-                allShipped = false;
-            }
-            if (status != Status.SHIPPED && status != Status.READY) {
-                allReadyOrShipped = false;
-            }
-            if (status == Status.PREPARING) {
-                anyPreparing = true;
-            }
-            if (status == Status.PENDING) {
-                anyPending = true;
+            if (status != Status.CANCELED) {
+                allCanceled = false;
+
+                if (status != Status.SHIPPED) {
+                    allShipped = false;
+                }
+                if (status != Status.SHIPPED && status != Status.READY) {
+                    allReadyOrShipped = false;
+                }
+                if (status == Status.PREPARING) {
+                    anyPreparing = true;
+                }
+                if (status == Status.PENDING) {
+                    anyPending = true;
+                }
             }
         }
 
+        if (allCanceled) return Status.CANCELED;
         if (allShipped) return Status.SHIPPED;
         if (allReadyOrShipped) return Status.READY;
         if (anyPreparing && !anyPending) return Status.PREPARING;
         return Status.PENDING;
     }
+
 
 }

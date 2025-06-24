@@ -15,16 +15,16 @@ public class ItemService {
     private final CartService cartService;
     private final RequestService requestService;
     private final CartRepository cartRepository;
-    private final InventoryDrugRepository inventoryDrugRepository;
+    private final InventoryDrugService inventoryDrugService;
 
-    public ItemService(ItemRepository itemRepository, JwtService jwtService, UserRepository userRepository,RequestService requestService, CartService cartService, CartRepository cartRepository, InventoryDrugRepository inventoryDrugRepository) {
+    public ItemService(ItemRepository itemRepository, JwtService jwtService, UserRepository userRepository, RequestService requestService, CartService cartService, CartRepository cartRepository, InventoryDrugService inventoryDrugService) {
         this.itemRepository = itemRepository;
         this.jwtService = jwtService;
         this.userRepository = userRepository;
         this.cartService = cartService;
         this.requestService = requestService;
         this.cartRepository = cartRepository;
-        this.inventoryDrugRepository = inventoryDrugRepository;
+        this.inventoryDrugService = inventoryDrugService;
     }
 
     public ApiResponse<Item> save(Item item, String token) {
@@ -34,7 +34,7 @@ public class ItemService {
         Optional<User> userOptional = userRepository.findById(userId);
         if (userOptional.isPresent() && userOptional.get().getUserRoles().equals(UserRoles.ROLE_CLIENT)) {
 
-            List<InventoryDrug> inventoryDrug = inventoryDrugRepository.findAllByDrugId(item.getDrugId());
+            List<InventoryDrug> inventoryDrug = inventoryDrugService.findByDrugId(item.getDrugId());
             if (inventoryDrug.isEmpty()) {
                 apiResponse.setMessage("drug Is not found");
                 apiResponse.setStatusCode(404);
@@ -168,7 +168,7 @@ public class ItemService {
 
     // Helper method 2: Find branches with available stock
     private Map<Long, Map<String, Integer>> getAvailableBranches(Map<String, Integer> neededDrugs) {
-        List<InventoryDrug> inventories = inventoryDrugRepository.findAllByDrugIdIn(new ArrayList<>(neededDrugs.keySet()));
+        List<InventoryDrug> inventories = inventoryDrugService.findByDrugIdIn(new ArrayList<>(neededDrugs.keySet()));
 
         Map<Long, Map<String, Integer>> branchStocks = new HashMap<>();
 

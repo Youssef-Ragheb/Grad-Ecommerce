@@ -10,6 +10,7 @@ import com.grad.ecommerce_ai.repository.*;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static com.grad.ecommerce_ai.mappers.CheckoutMapper.toRequestDTO;
@@ -278,9 +279,25 @@ public class RequestService {
 
     }
 
+    public Long pendingRequestsForCompany(List<Long> branchIds){
+        return requestRepository.countByBranchIdInAndStatus(branchIds,Status.PENDING);
+    }
 
+    public float calculateMonthlyRevenue(Long branchId) {
+        LocalDateTime startOfLastMonth = LocalDateTime.now().minusMonths(1).withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0);
+        LocalDateTime endOfLastMonth = startOfLastMonth.withDayOfMonth(startOfLastMonth.toLocalDate().lengthOfMonth()).withHour(23).withMinute(59).withSecond(59);
 
+        List<Request> shippedRequests = requestRepository.findByBranchIdAndStatusAndRequestDateBetween(
+                branchId,
+                Status.SHIPPED,
+                startOfLastMonth,
+                endOfLastMonth
+        );
 
+        return (float) shippedRequests.stream()
+                .mapToDouble(Request::getTotalPriceOfRequest)
+                .sum();
+    }
 
 
 

@@ -67,6 +67,7 @@ public class OrderService {
             orderPrice += request.getTotalPriceOfRequest();
             request.setOrderId(newOrder.getId());
             request.setCustomerId(userId);
+            request.setRequestDate(LocalDateTime.now());
             request = requestRepository.save(request);
             requestIds.add(request.getRequestId());
             RequestDTO dto = toRequestDTO(request, user.get());

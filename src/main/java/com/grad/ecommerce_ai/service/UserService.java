@@ -48,21 +48,7 @@ public class UserService {
         this.companyDetailsRepository = companyDetailsRepository;
     }
 
-    //    public ApiResponse<Boolean> checkMailExists(String mail) {
-//        ApiResponse<Boolean> response = new ApiResponse<>();
-//        if(userRepository.existsByEmail(mail)){
-//           response.setStatus(false);
-//           response.setMessage("Email already exists");
-//           response.setData(false);
-//           response.setStatusCode(500);
-//           return response;
-//        }
-//        response.setStatus(true);
-//        response.setMessage("Email does not exist");
-//        response.setData(true);
-//        response.setStatusCode(200);
-//        return response;
-//    }
+
     private String encodePassword(String password) {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         return encoder.encode(password);
@@ -232,10 +218,8 @@ public class UserService {
         ApiResponse<String> response = new ApiResponse<>();
         Long userId = jwtService.extractUserId(token.getToken());
         User user = userRepository.findById(userId).orElse(null);
-        //assert user != null;
-        response.setMessage("Role: "+user.getUserRoles());
         response.setStatus(true);
-        response.setData(user.getUserRoles().toString());
+        response.setData(Objects.requireNonNull(user).getUserRoles().toString());
         response.setStatusCode(200);
         return response;
     }
@@ -353,8 +337,12 @@ public class UserService {
         return response;
 
     }
+
     public Long getEmployeeCount(List<Long> employeeIds){
         return employeeDetailsRepository.countByBranch_BranchIdIn(employeeIds);
+    }
+    public Long getEmployeesCountForBranch(Long branchId){
+        return employeeDetailsRepository.countByBranch_BranchId(branchId);
     }
 
 

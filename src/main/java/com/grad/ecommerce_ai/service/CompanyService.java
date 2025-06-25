@@ -3,11 +3,8 @@ package com.grad.ecommerce_ai.service;
 import com.grad.ecommerce_ai.dto.ApiResponse;
 import com.grad.ecommerce_ai.dto.BranchDTO;
 import com.grad.ecommerce_ai.dto.CompanyDTO;
-import com.grad.ecommerce_ai.entity.Branch;
-import com.grad.ecommerce_ai.entity.Company;
-import com.grad.ecommerce_ai.entity.User;
+import com.grad.ecommerce_ai.entity.*;
 import com.grad.ecommerce_ai.entity.details.CompanyDetails;
-import com.grad.ecommerce_ai.entity.details.EmployeeDetails;
 import com.grad.ecommerce_ai.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -15,7 +12,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import static com.grad.ecommerce_ai.mappers.CheckoutMapper.toRequestDTO;
 import static com.grad.ecommerce_ai.mappers.DtoConverter.*;
 
 @Service
@@ -26,15 +25,19 @@ public class CompanyService {
     private final CompanyDetailsService companyDetailsService;
     private final CompanyDetailsRepository companyDetailsRepository;
     private final BranchRepository branchRepository;
+    private final RequestService requestService;
+    private final RequestRepository requestRepository;
 
 
-    public CompanyService(CompanyRepository companyRepository, JwtService jwtService, UserRepository userRepository, CompanyDetailsService companyDetailsService, CompanyDetailsRepository companyDetailsRepository, BranchRepository branchRepository) {
+    public CompanyService(CompanyRepository companyRepository, JwtService jwtService, UserRepository userRepository, CompanyDetailsService companyDetailsService, CompanyDetailsRepository companyDetailsRepository, BranchRepository branchRepository, RequestService requestService, RequestRepository requestRepository) {
         this.companyRepository = companyRepository;
         this.jwtService = jwtService;
         this.userRepository = userRepository;
         this.companyDetailsService = companyDetailsService;
         this.companyDetailsRepository = companyDetailsRepository;
         this.branchRepository = branchRepository;
+        this.requestService = requestService;
+        this.requestRepository = requestRepository;
     }
     public ApiResponse<CompanyDTO> getCompanyWithToken(String token) {
         ApiResponse<CompanyDTO> response = new ApiResponse<>();
@@ -258,8 +261,20 @@ public class CompanyService {
             apiResponse.setStatus(false);
             return apiResponse;
         }
-
-        // Update user's registration status
+        //get all branches
+        //List<Branch> branchList = companyDetails.getCompany().getBranchList();
+        List<Long> branchIds = companyDetails.getCompany().getBranchList()
+                .stream()
+                .map(Branch::getBranchId)
+                .collect(Collectors.toList());
+        List<Request> requestList = requestRepository.findByBranchIdIn(branchIds);
+        for (Request request : requestList) {
+            if(!request.getStatus().equals(Status.SHIPPED)){
+                request.setStatus(Status.CANCELED);
+                User client = userRepository.findById(request.getCustomerId()).orElseThrow();
+                requestService.updateRequestFromCompany(toRequestDTO(request, client),token);
+            }
+        }
         registeredUser.setCompanyRegistrationCompleted(false);
         userRepository.save(registeredUser);
 

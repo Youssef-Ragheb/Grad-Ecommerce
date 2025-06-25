@@ -5,6 +5,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -17,9 +18,9 @@ public class Request {
     private Long branchId;
     @Indexed
     private String orderId;
-    private Status status;// "PENDING", "PREPARING", "READY", "SHIPPED"
+    private Status status;// "PENDING", "CANCELED", "READY", "SHIPPED"
     private Long customerId;
     private float totalPriceOfRequest;
-
+    private LocalDateTime requestDate;
 
 }

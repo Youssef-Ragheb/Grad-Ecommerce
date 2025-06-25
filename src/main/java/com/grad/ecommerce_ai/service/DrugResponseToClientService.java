@@ -139,10 +139,15 @@ public class DrugResponseToClientService {
 
             // Calculate average price and availability
             if (!inventoryDrugs.isEmpty()) {
-                double averagePrice = inventoryDrugs.stream().mapToDouble(InventoryDrug::getPrice).average().orElse(0);
-                boolean isAvailable = inventoryDrugs.stream().anyMatch(inventory -> inventory.getStock() > 0);
-                drugResponse.setPrice((float) averagePrice);
+                double lowestPrice = inventoryDrugs.stream()
+                        .mapToDouble(InventoryDrug::getPrice)
+                        .min()
+                        .orElse(0); // default if empty (though you already checked)
+
+                boolean isAvailable = inventoryDrugs.stream()
+                        .anyMatch(inventory -> inventory.getStock() > 0);
                 drugResponse.setAvailable(isAvailable);
+                drugResponse.setPrice((float) lowestPrice);
             } else {
                 // Default values if no inventory found
                 drugResponse.setPrice(0);

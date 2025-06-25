@@ -12,4 +12,5 @@ public interface EmployeeDetailsRepository extends JpaRepository<EmployeeDetails
     Optional<EmployeeDetails> findByUser(User user);
     Long countByBranch_BranchIdIn(List<Long> branchIds);
     Boolean existsByUser(User user);
+    Long countByBranch_BranchId(Long branchId);
 }

@@ -63,8 +63,8 @@ public class WishlistService {
 
     public ApiResponse<List<Wishlist>> getWishlist(String token) {
         ApiResponse<List<Wishlist>> apiResponse = new ApiResponse<>();
-        Long userId = jwtService.extractUserId(token);
-        Optional<User> user = userRepository.findById(userId);
+        Optional<User> user = userRepository.
+                findById(jwtService.extractUserId(token));
         if (user.isEmpty()) {
             apiResponse.setMessage("User not found");
             apiResponse.setStatusCode(404);
@@ -79,7 +79,7 @@ public class WishlistService {
             apiResponse.setStatus(false);
             return apiResponse;
         }
-        apiResponse.setData(wishlistRepository.findByUserId(userId));
+        apiResponse.setData(wishlistRepository.findByUserId(user.get().getId()));
         apiResponse.setStatusCode(200);
         apiResponse.setStatus(true);
         apiResponse.setMessage("wishlist found");
@@ -88,8 +88,7 @@ public class WishlistService {
 
     public ApiResponse<Boolean> deleteWishlist(Wishlist wishlist, String token) {
         ApiResponse<Boolean> apiResponse = new ApiResponse<>();
-        Long userId = jwtService.extractUserId(token);
-        Optional<User> user = userRepository.findById(userId);
+        Optional<User> user = userRepository.findById(jwtService.extractUserId(token));
         if (user.isEmpty()) {
             apiResponse.setMessage("User not found");
             apiResponse.setStatusCode(404);

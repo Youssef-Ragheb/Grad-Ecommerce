@@ -53,4 +53,8 @@ public class InventoryDrugController {
         ApiResponse<Void> response = inventoryDrugService.deleteInventoryDrug(id, token);
         return new ResponseEntity<>(response, response.getStatusCode() == 200 ? org.springframework.http.HttpStatus.OK : org.springframework.http.HttpStatus.UNAUTHORIZED);
     }
+    @GetMapping("/get-stock-value/branch")
+    public Double getStockValueByBranchId(@RequestParam Long branchId){
+        return inventoryDrugService.getStockValueForBranch(branchId);
+    }
 }

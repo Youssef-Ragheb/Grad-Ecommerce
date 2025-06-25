@@ -2,8 +2,6 @@ package com.grad.ecommerce_ai.controller;
 
 import com.grad.ecommerce_ai.dto.ApiResponse;
 import com.grad.ecommerce_ai.dto.RequestDTO;
-import com.grad.ecommerce_ai.entity.Status;
-import com.grad.ecommerce_ai.repository.RequestRepository;
 import com.grad.ecommerce_ai.service.RequestService;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,11 +12,9 @@ import java.util.List;
 @RequestMapping("/api/request")
 public class RequestController {
     private final RequestService requestService;
-    private final RequestRepository requestRepository;
 
-    public RequestController(RequestService requestService, RequestRepository requestRepository) {
+    public RequestController(RequestService requestService) {
         this.requestService = requestService;
-        this.requestRepository = requestRepository;
     }
     @GetMapping("/get-all")
     public ApiResponse<List<RequestDTO>> getRequests(@RequestHeader String token) {
@@ -41,7 +37,11 @@ public class RequestController {
 
     @PostMapping("/pending")
     public Long getPendingRequests(@RequestBody List<Long> branchIds) {
-        return requestRepository.countByBranchIdInAndStatus(branchIds,Status.PENDING);
+        return requestService.pendingRequestsForCompany(branchIds);
+    }
+    @GetMapping("/request/monthly/revenue")
+    public Float getRevenue(@RequestParam Long branchId) {
+        return requestService.calculateMonthlyRevenue(branchId);
     }
 
 }

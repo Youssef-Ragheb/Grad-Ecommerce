@@ -4,7 +4,6 @@ import com.grad.ecommerce_ai.dto.ApiResponse;
 import com.grad.ecommerce_ai.entity.Drugs;
 import com.grad.ecommerce_ai.entity.InventoryDrug;
 import com.grad.ecommerce_ai.repository.InventoryDrugRepository;
-import com.grad.ecommerce_ai.repository.MainDrugRepository;
 import com.grad.ecommerce_ai.utils.CheckAuth;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -23,7 +22,6 @@ public class InventoryDrugService {
     private static final String INVENTORY_KEY_PREFIX = "INVENTORY:"; // + inventoryId
     private static final String INVENTORY_BRANCH_KEY = "INVENTORY:BRANCH:"; // + branchId
     private static final String INVENTORY_DRUG_KEY = "INVENTORY:DRUG:"; // + drugId
-    private static final String INVENTORY_DRUGS_KEY = "INVENTORY:DRUGS"; // optional for full list
 
     public InventoryDrugService(InventoryDrugRepository inventoryDrugRepository, JwtService jwtService, CheckAuth checkAuth, DrugService drugService, RedisTemplate<String, InventoryDrug> redisTemplate) {
         this.inventoryDrugRepository = inventoryDrugRepository;
@@ -187,6 +185,17 @@ public class InventoryDrugService {
         }
         return response;
     }
+
+    public Double getStockValueForBranch(Long branchId){
+        double stockValue = 0;
+        List<InventoryDrug> inventoryDrugList = findByBranchId(branchId);
+        for (InventoryDrug inv : inventoryDrugList){
+            stockValue += (inv.getStock()* inv.getPrice());
+        }
+        return stockValue;
+    }
+
+
     public InventoryDrug saveInventory(InventoryDrug inventoryDrug) {
         InventoryDrug saved = inventoryDrugRepository.save(inventoryDrug);
 

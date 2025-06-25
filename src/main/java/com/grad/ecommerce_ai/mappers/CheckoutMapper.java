@@ -27,6 +27,7 @@ public class CheckoutMapper {
         dto.setStatus(request.getStatus());
         dto.setCustomer(toCustomerInfoDTO(customer));
         dto.setId(request.getRequestId());
+        dto.setRequestDate(request.getRequestDate());
         return dto;
     }
 
@@ -42,6 +43,7 @@ public class CheckoutMapper {
         request.setOrderId(dto.getOrderId());
         request.setStatus(dto.getStatus());
         request.setRequestId(dto.getId());
+        request.setRequestDate(dto.getRequestDate());
         return request;
     }
 

@@ -293,6 +293,7 @@ public class RequestService {
                 startOfLastMonth,
                 endOfLastMonth
         );
+        System.out.println(shippedRequests.get(0));
 
         return (float) shippedRequests.stream()
                 .mapToDouble(Request::getTotalPriceOfRequest)

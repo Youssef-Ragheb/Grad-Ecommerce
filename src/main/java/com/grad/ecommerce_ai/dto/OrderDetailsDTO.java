@@ -2,6 +2,8 @@ package com.grad.ecommerce_ai.dto;
 
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 public class OrderDetailsDTO {
 
@@ -12,5 +14,6 @@ public class OrderDetailsDTO {
     private float price;
 
     private int quantity;
+    private LocalDateTime localDateTime;
 }
 

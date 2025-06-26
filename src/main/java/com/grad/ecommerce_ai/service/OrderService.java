@@ -2,7 +2,6 @@ package com.grad.ecommerce_ai.service;
 
 import com.grad.ecommerce_ai.dto.ApiResponse;
 import com.grad.ecommerce_ai.dto.OrderDetailsDTO;
-import com.grad.ecommerce_ai.dto.RequestDTO;
 import com.grad.ecommerce_ai.entity.*;
 import com.grad.ecommerce_ai.repository.*;
 import jakarta.transaction.Transactional;
@@ -10,6 +9,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -62,76 +62,32 @@ public class OrderService {
         List<Request> requests = itemService.findBestBranchesForOrder(cartOptional.get().getItems());
 
         List<String> requestIds = new ArrayList<>();
+        ZoneId egyptZone = ZoneId.of("Africa/Cairo");
+        LocalDateTime currentTimeInEgypt = LocalDateTime.now(egyptZone);
         float orderPrice = 0;
         for (Request request : requests) {
             orderPrice += request.getTotalPriceOfRequest();
             request.setOrderId(newOrder.getId());
             request.setCustomerId(userId);
-            request.setRequestDate(LocalDateTime.now());
+
+            request.setRequestDate(currentTimeInEgypt);
             request = requestRepository.save(request);
             requestIds.add(request.getRequestId());
-            RequestDTO dto = toRequestDTO(request, user.get());
-            // webSocketService.sendNewRequestToBranch(request.getBranchId(), dto);
+            toRequestDTO(request, user.get());
         }
         newOrder.setStatus(Status.PENDING);
         newOrder.setRequestsIds(requestIds);
         newOrder.setUserId(userId);
         newOrder.setTotalPrice(orderPrice);
-        newOrder.setOrderDateAndTime(LocalDateTime.now());
+        newOrder.setOrderDateAndTime(currentTimeInEgypt);
         newOrder = orderRepository.save(newOrder);
-        // Notify user about the overall order
-//        OrderStatusDTO orderStatusDTO = new OrderStatusDTO(
-//                newOrder.getId(),
-//                Status.PENDING,
-//                LocalDateTime.now(),
-//                "Order has been placed successfully",
-//                newOrder.getRequestsIds() // Include all request IDs
-//        );
-        //webSocketService.sendOrderStatusUpdate(newOrder.getId(), orderStatusDTO);
-        // completeOrder(requests,cartOptional.get());
-        //webSocketService.sendOrderStatusUpdate(newOrder.getId(), Status.PENDING);
-        apiResponse.setData(newOrder);//edit this shit
-        //cartOptional
+        apiResponse.setData(newOrder);
         cartOptional.get().getItems().clear();
         cartRepository.save(cartOptional.get());
 
-        //////////////////////////////////////////////////////////////////////////
         return apiResponse;
     }
-//    public ApiResponse<Order> saveOrder(Order order, String token) {
-//        ApiResponse<Order> response = new ApiResponse<>();
-//        Long userId = jwtService.extractUserId(token);
-//        order.setUserId(userId);
-//
-//        Order savedOrder = orderRepository.save(order);
-//        response.setStatus(true);
-//        response.setStatusCode(200);
-//        response.setMessage("Order placed successfully");
-//        response.setData(savedOrder);
-//
-//        return response;
-//    }
-//    private void completeOrder (List<Request> requests, Cart cart) {
-//
-//        for(Request request : requests){
-//
-//           Long branchId = request.getBranchId();
-//
-//           for(Item item : request.getItems()){
-//               Optional<InventoryDrug> inventoryDrug = inventoryDrugRepository
-//                       .findByDrugIdAndBranchId(item.getDrugId(),branchId);
-//
-//               if(inventoryDrug.isPresent() ) {
-//                   int currentStock = inventoryDrug.get().getStock();
-//                   currentStock -= item.getQuantity();
-//                   inventoryDrug.get().setStock(currentStock);
-//                   inventoryDrugRepository.save(inventoryDrug.get());
-//               }
-//           }
-//        }
-//        cart.getItems().clear();
-//        cartRepository.save(cart);
-//    }
+
 
     public ApiResponse<Order> getOrderById(String id, String token) {
         ApiResponse<Order> response = new ApiResponse<>();
@@ -184,6 +140,7 @@ public class OrderService {
             dto.setDrugId(item.getDrugId());
             Drugs drugs = drugService.findDrug(item.getDrugId()).orElse(null);
             dto.setDrugName(drugs.getDrugName());
+            dto.setLocalDateTime(requestList.get(0).getRequestDate());
             orderDetailsDTOList.add(dto);
         }
         response.setStatus(true);

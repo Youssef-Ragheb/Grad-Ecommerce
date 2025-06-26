@@ -16,8 +16,11 @@ public class ItemService {
     private final RequestService requestService;
     private final CartRepository cartRepository;
     private final InventoryDrugService inventoryDrugService;
+    private final UserLocationService userLocationService;
+    private final BranchRepository branchRepository;
+    private final DistanceService distanceService;
 
-    public ItemService(ItemRepository itemRepository, JwtService jwtService, UserRepository userRepository, RequestService requestService, CartService cartService, CartRepository cartRepository, InventoryDrugService inventoryDrugService) {
+    public ItemService(ItemRepository itemRepository, JwtService jwtService, UserRepository userRepository, RequestService requestService, CartService cartService, CartRepository cartRepository, InventoryDrugService inventoryDrugService, UserLocationService userLocationService, BranchRepository branchRepository, DistanceService distanceService) {
         this.itemRepository = itemRepository;
         this.jwtService = jwtService;
         this.userRepository = userRepository;
@@ -25,6 +28,9 @@ public class ItemService {
         this.requestService = requestService;
         this.cartRepository = cartRepository;
         this.inventoryDrugService = inventoryDrugService;
+        this.userLocationService = userLocationService;
+        this.branchRepository = branchRepository;
+        this.distanceService = distanceService;
     }
 
     public ApiResponse<Item> save(Item item, String token) {
@@ -146,12 +152,14 @@ public class ItemService {
     public List<Request> findBestBranchesForOrder(List<Item> orderItems) {
         // 1. Calculate total needed quantities for each drug
         Map<String, Integer> neededDrugs = calculateNeededDrugs(orderItems);
+        Long userId = orderItems.get(0).getUserId();// All items belong to one user
 
+        UserLocation userLocation = userLocationService.getLocationByUserId(userId);
         // 2. Find all branches that have at least some of the drugs we need
         Map<Long, Map<String, Integer>> branchInventories = getAvailableBranches(neededDrugs);
 
         // 3. Select branches that can cover all drugs with minimum branches
-        List<Long> selectedBranchIds = selectMinimumBranches(neededDrugs, branchInventories);
+        List<Long> selectedBranchIds = selectMinimumBranches(neededDrugs, branchInventories,userLocation);
 
         // 4. Create requests for each selected branch
         return requestService.createBranchRequests(orderItems, selectedBranchIds, branchInventories);
@@ -188,7 +196,8 @@ public class ItemService {
 
     // Helper method 3: Select the fewest branches that can fulfill everything
     private List<Long> selectMinimumBranches(Map<String, Integer> neededDrugs,
-                                             Map<Long, Map<String, Integer>> branchInventories) {
+                                             Map<Long, Map<String, Integer>> branchInventories,
+                                             UserLocation userLocation) {
 
         Set<String> remainingDrugs = new HashSet<>(neededDrugs.keySet());
         List<Long> selectedBranches = new ArrayList<>();
@@ -198,7 +207,8 @@ public class ItemService {
             Long bestBranch = null;
             int mostDrugsCovered = 0;
 
-            for (Long branchId : branchInventories.keySet()) {
+            List<Long> sortedBranchIds = rankBranchesByDistance(userLocation, branchInventories.keySet());
+            for (Long branchId : sortedBranchIds) {
                 Set<String> branchDrugs = branchInventories.get(branchId).keySet();
 
                 // See how many remaining drugs this branch has
@@ -226,5 +236,22 @@ public class ItemService {
         }
 
         return selectedBranches;
+    }
+
+    private List<Long> rankBranchesByDistance(UserLocation userLocation, Set<Long> branchIds) {
+        List<Branch> branches = branchRepository.findAllById(branchIds)
+                .stream()
+                .filter(b -> b.getLat() != 0 && b.getLng() != 0) // Only branches with valid location
+                .toList();
+
+        return branches.stream()
+                .sorted(Comparator.comparingDouble(
+                        branch -> distanceService.calculateDistance(
+                                userLocation.getLat(), userLocation.getLng(),
+                                branch.getLat(), branch.getLng()
+                        )
+                ))
+                .map(Branch::getBranchId)
+                .toList();
     }
 }

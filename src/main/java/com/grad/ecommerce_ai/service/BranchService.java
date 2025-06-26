@@ -197,12 +197,12 @@ public class BranchService {
         if (branchDTO.getAddress() != null && !branchDTO.getAddress().isEmpty()) {
             dbBranch.setAddress(branchDTO.getAddress());
         }
-//        if (branchDTO.getLng() != 0) {
-//            dbBranch.setLng(branchDTO.getLng());
-//        }
-//        if (branchDTO.getLat() != 0) {
-//            dbBranch.setLat(branchDTO.getLat());
-//        }
+        if (branchDTO.getLng() != 0) {
+            dbBranch.setLng(branchDTO.getLng());
+        }
+        if (branchDTO.getLat() != 0) {
+            dbBranch.setLat(branchDTO.getLat());
+        }
         if (branchDTO.getZip() != null && !branchDTO.getZip().isEmpty()) {
             dbBranch.setZip(branchDTO.getZip());
         }

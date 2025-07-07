@@ -70,6 +70,9 @@ public class CheckoutMapper {
 
     // Customer Mappings
     public static CustomerInfoDTO toCustomerInfoDTO(User user) {
+        if(user == null){
+            return null;
+        }
         CustomerInfoDTO dto = new CustomerInfoDTO();
         dto.setFirstName(user.getFirstName());
         dto.setLastName(user.getLastName());

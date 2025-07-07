@@ -52,6 +52,15 @@ public class WishlistService {
             return apiResponse;
         }
         Wishlist wishlistEntity = new Wishlist();
+        Optional<Wishlist> wishlistOptional = wishlistRepository.
+                findByUserIdAndDrugId(userId,wishlist.getDrugId());
+        if(wishlistOptional.isPresent()) {
+            apiResponse.setMessage("wishlist already exists");
+            apiResponse.setStatusCode(409);
+            apiResponse.setData(null);
+            apiResponse.setStatus(false);
+            return apiResponse;
+        }
         wishlistEntity.setUserId(userId);
         wishlistEntity.setDrugId(drugId);
         apiResponse.setData(wishlistRepository.save(wishlistEntity));

@@ -12,7 +12,9 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.grad.ecommerce_ai.mappers.CheckoutMapper.toRequestDTO;
 
@@ -124,25 +126,52 @@ public class OrderService {
     public ApiResponse<List<OrderDetailsDTO>> getOrderDetails(String orderId) {
         ApiResponse<List<OrderDetailsDTO>> response = new ApiResponse<>();
         List<OrderDetailsDTO> orderDetailsDTOList = new ArrayList<>();
+
+        // Step 1: Get all requests in this order
         List<Request> requestList = requestRepository.findByOrderId(orderId);
-        List<String> itemsIds = new ArrayList<>();
-        for (Request request : requestList) {
-            for (Item item : request.getItems()) {
-                itemsIds.add(item.getId());
-            }
+        if (requestList.isEmpty()) {
+            response.setStatus(false);
+            response.setStatusCode(404);
+            response.setMessage("No requests found for this order");
+            return response;
         }
 
-        List<Item> itemList = itemRepository.findByIdIn(itemsIds);
+        // Step 2: Collect item IDs
+        List<String> itemIds = requestList.stream()
+                .flatMap(r -> r.getItems().stream())
+                .map(Item::getId)
+                .toList();
+
+        // Step 3: Fetch items in one go
+        List<Item> itemList = itemRepository.findByIdIn(itemIds);
+
+        // Step 4: Get unique drug IDs from items
+        List<String> drugIds = itemList.stream()
+                .map(Item::getDrugId)
+                .distinct()
+                .toList();
+
+        // Step 5: Fetch all drugs in one go
+        List<Drugs> drugsList = drugService.findDrugsByIds(drugIds);
+        Map<String, Drugs> drugMap = drugsList.stream()
+                .collect(Collectors.toMap(Drugs::getId, d -> d));
+
+        // Step 6: Build DTOs
         for (Item item : itemList) {
             OrderDetailsDTO dto = new OrderDetailsDTO();
             dto.setPrice(item.getPrice());
             dto.setQuantity(item.getQuantity());
             dto.setDrugId(item.getDrugId());
-            Drugs drugs = drugService.findDrug(item.getDrugId()).orElse(null);
-            dto.setDrugName(drugs.getDrugName());
+
+            Drugs drug = drugMap.get(item.getDrugId());
+            dto.setDrugName(drug != null ? drug.getDrugName() : "Unknown Drug");
+
+            // Assume all requests have same request date (can be improved later)
             dto.setLocalDateTime(requestList.get(0).getRequestDate());
+
             orderDetailsDTOList.add(dto);
         }
+
         response.setStatus(true);
         response.setStatusCode(200);
         response.setMessage("Order details retrieved");

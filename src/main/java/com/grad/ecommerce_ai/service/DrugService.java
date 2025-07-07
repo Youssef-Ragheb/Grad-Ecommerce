@@ -6,18 +6,21 @@ import com.grad.ecommerce_ai.repository.MainDrugRepository;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class DrugService {
     private static final String DRUG_KEY_PREFIX = "DRUG:";
     private static final String DRUG_ALL_KEY = "DRUG:ALL";
+    private static final String DRUG_CATEGORY_PREFIX = "DRUG:CATEGORY:";
     private final JwtService jwtService;
     private final MainDrugRepository mainDrugRepository;
-    private final RedisTemplate<String, Drugs> redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
 
-    public DrugService(JwtService jwtService, MainDrugRepository mainDrugRepository, RedisTemplate<String, Drugs> redisTemplate) {
+    public DrugService(JwtService jwtService, MainDrugRepository mainDrugRepository, RedisTemplate<String, Object> redisTemplate) {
         this.jwtService = jwtService;
         this.mainDrugRepository = mainDrugRepository;
 
@@ -147,9 +150,9 @@ public class DrugService {
 
     public Optional<Drugs> findDrug(String id) {
         String key = DRUG_KEY_PREFIX + id;
-        Drugs cachedDrug = redisTemplate.opsForValue().get(key);
 
-        if (cachedDrug != null) {
+        Object raw = redisTemplate.opsForValue().get(key);
+        if (raw instanceof Drugs cachedDrug) {
             return Optional.of(cachedDrug);
         }
 
@@ -158,57 +161,89 @@ public class DrugService {
         return drug;
     }
 
-    // Get all drugs (with cache)
     public List<Drugs> findAllDrugs() {
-        List<Drugs> cachedDrugs = redisTemplate.opsForList().range(DRUG_ALL_KEY, 0, -1);
-        if (cachedDrugs != null && !cachedDrugs.isEmpty()) {
-            return cachedDrugs;
+        Object raw = redisTemplate.opsForValue().get(DRUG_ALL_KEY);
+        if (raw instanceof List<?> list && (list.isEmpty() || list.get(0) instanceof Drugs)) {
+            return (List<Drugs>) list;
         }
 
         List<Drugs> drugs = mainDrugRepository.findAll();
-        redisTemplate.delete(DRUG_ALL_KEY); // clear old data
-        redisTemplate.opsForList().rightPushAll(DRUG_ALL_KEY, drugs);
+        redisTemplate.opsForValue().set(DRUG_ALL_KEY, drugs);
         return drugs;
     }
 
-    // Save drug (update cache and invalidate list)
     public Drugs saveDrug(Drugs drug) {
         Drugs saved = mainDrugRepository.save(drug);
 
         String key = DRUG_KEY_PREFIX + saved.getId();
-        redisTemplate.opsForValue().set(key, saved); // update single
-        redisTemplate.delete(DRUG_ALL_KEY); // force refresh list
+        redisTemplate.opsForValue().set(key, saved);
+        redisTemplate.delete(DRUG_ALL_KEY);
+        redisTemplate.delete(DRUG_CATEGORY_PREFIX + saved.getCategoryId());
+
         return saved;
     }
 
     public List<Drugs> findDrugsByCategory(String categoryId) {
-        String cacheKey = "DRUG:CATEGORY:" + categoryId;
+        String cacheKey = DRUG_CATEGORY_PREFIX + categoryId;
 
-        // Try to get from Redis first
-        List<Drugs> cachedDrugs = redisTemplate.opsForList().range(cacheKey, 0, -1);
-        if (cachedDrugs != null && !cachedDrugs.isEmpty()) {
-            return cachedDrugs;
+        Object raw = redisTemplate.opsForValue().get(cacheKey);
+        if (raw instanceof List<?> list && (list.isEmpty() || list.get(0) instanceof Drugs)) {
+            return (List<Drugs>) list;
         }
 
-        // If not cached, fetch from DB
         List<Drugs> drugs = mainDrugRepository.findByCategoryId(categoryId);
-
-        // Cache the result
         if (!drugs.isEmpty()) {
-            redisTemplate.opsForList().rightPushAll(cacheKey, drugs);
+            redisTemplate.opsForValue().set(cacheKey, drugs);
         }
 
         return drugs;
     }
+    public List<Drugs> findDrugsByIds(List<String> ids) {
+        List<Drugs> result = new ArrayList<>();
+        List<String> missingIds = new ArrayList<>();
 
-    // Delete drug (remove from Redis too)
+        // Step 1: Try to get each drug from Redis
+        for (String id : ids) {
+            String key = DRUG_KEY_PREFIX + id;
+            Object raw = redisTemplate.opsForValue().get(key);
+
+            if (raw instanceof Drugs cachedDrug) {
+                result.add(cachedDrug);
+            } else {
+                missingIds.add(id);
+            }
+        }
+
+        // Step 2: Fetch missing ones from DB in one call
+        if (!missingIds.isEmpty()) {
+            List<Drugs> dbDrugs = mainDrugRepository.findAllById(missingIds);
+            result.addAll(dbDrugs);
+
+            // Step 3: Cache them back to Redis
+            for (Drugs drug : dbDrugs) {
+                String key = DRUG_KEY_PREFIX + drug.getId();
+                redisTemplate.opsForValue().set(key, drug);
+            }
+        }
+
+        return result;
+    }
     public void deleteDrug(String id) {
-        mainDrugRepository.deleteById(id);
+        Optional<Drugs> drug = mainDrugRepository.findById(id);
+        drug.ifPresent(d -> {
+            redisTemplate.delete(DRUG_CATEGORY_PREFIX + d.getCategoryId());
+        });
 
+        mainDrugRepository.deleteById(id);
         redisTemplate.delete(DRUG_KEY_PREFIX + id);
         redisTemplate.delete(DRUG_ALL_KEY);
     }
-
+    public void clearAllDrugCache() {
+        Set<String> keys = redisTemplate.keys("DRUG:*");
+        if (keys != null && !keys.isEmpty()) {
+            redisTemplate.delete(keys);
+        }
+    }
 
 }
 
